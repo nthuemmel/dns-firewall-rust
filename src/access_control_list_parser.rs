@@ -7,6 +7,7 @@ use anyhow::{anyhow, bail};
 use ipnet::IpNet;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::net::IpAddr;
 use std::path::Path;
 use std::str::FromStr;
 
@@ -100,7 +101,16 @@ fn insert_act_entry(
     client_address: &str,
     entry_modifier: impl FnOnce(&mut ACTSubnet),
 ) -> anyhow::Result<()> {
-    let client_subnet = IpNet::from_str(client_address).with_context(|| {
+    // The IpNet parser requires CIDR notation (i.e. trailing /<masklen>)
+    // If the user didn't specify a mask, we take care of it.
+    let client_subnet = if client_address.contains('/') {
+        IpNet::from_str(client_address).map_err(anyhow::Error::from)
+    } else {
+        IpAddr::from_str(client_address)
+            .map(IpNet::from)
+            .map_err(anyhow::Error::from)
+    }
+    .with_context(|| {
         format!(
             "Could not parse client IP address '{}' - expected an IPv4 or \
     		 IPv6 address or subnet in CIDR notation",
