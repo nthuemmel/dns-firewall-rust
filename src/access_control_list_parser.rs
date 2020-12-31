@@ -46,15 +46,17 @@ fn process_line(line: &str, tree_builder: &mut AccessControlTreeBuilder) -> anyh
         }
 
         // Parse domain name
-        let domain_name = destination_tokens[0].to_string();
+        let domain_name = destination_tokens[0].trim().to_string();
 
         // Parse protocol
-        let protocol = Protocol::parse(destination_tokens[1])
-            .ok_or_else(|| anyhow!("Unknown protocol '{}'", destination_tokens[1]))?;
+        let protocol_str = destination_tokens[1].trim();
+        let protocol = Protocol::parse(protocol_str)
+            .ok_or_else(|| anyhow!("Unknown protocol '{}'", protocol_str))?;
 
         // Parse port
-        let port = u16::from_str(destination_tokens[2])
-            .with_context(|| format!("Invalid port '{}'", destination_tokens[2]))?;
+        let port_str = destination_tokens[2].trim();
+        let port =
+            u16::from_str(port_str).with_context(|| format!("Invalid port '{}'", port_str))?;
 
         // Parse client address & insert ACT entry
         insert_act_entry(tree_builder, client_address, |entry| {
@@ -75,7 +77,7 @@ fn process_line(line: &str, tree_builder: &mut AccessControlTreeBuilder) -> anyh
         let client_address = tokens[0].trim();
 
         // Parse domain name
-        let domain_name = tokens[1].to_string();
+        let domain_name = tokens[1].trim().to_string();
 
         // Parse client address & insert ACT entry
         insert_act_entry(tree_builder, client_address, |entry| {
