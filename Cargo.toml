@@ -1,0 +1,20 @@
+[package]
+name = "dns-firewall"
+version = "0.1.0"
+authors = ["Nikolaus Thümmel <commit.nthuemmel@ntcomputer.de>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+anyhow = "*"
+ipnet = "*"
+log = "*"
+dns-parser = "*"
+rand = "*"
+chrono = "*"
+structopt = "*"
+env_logger = "*"
+
+[profile.release]
+lto = true
