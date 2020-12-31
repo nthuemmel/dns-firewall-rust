@@ -78,7 +78,15 @@ impl DnsMessageProcessor {
         };
 
         let act_entries = self.act.get_matching_entries(client_address);
+
+        log::debug!(
+            "Lookup of client IP {} yielded {:?}",
+            client_address,
+            act_entries
+        );
+
         // We still continue even if actEntries is empty (sender not allowed), to generate log messages
+
         let always_allow_dns_query = act_entries.iter().any(|e| e.allow_all_dns_queries);
 
         // Validate for QUERY OPCODE, unless all DNS queries are allowed

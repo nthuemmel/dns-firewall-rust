@@ -7,19 +7,19 @@ pub struct AccessControlTree {
     entries: Vec<(IpNet, ACTSubnet)>,
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct ACTSubnet {
     pub allow_all_dns_queries: bool,
     pub domain_name_map: HashMap<String, ACTDomain>,
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct ACTDomain {
     pub allow_all_dns_questions: bool,
     pub allowed_destination_sockets: Vec<ACTSocketAddress>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct ACTSocketAddress {
     pub protocol: Protocol,
     pub port: u16,
