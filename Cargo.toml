@@ -1,5 +1,6 @@
 [package]
 name = "dns-firewall"
+description = "Filtering DNS proxy server with firewall integration"
 version = "0.1.0"
 authors = ["Nikolaus Thümmel <commit.nthuemmel@ntcomputer.de>"]
 edition = "2018"
@@ -7,14 +8,30 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
-anyhow = "*"
 ipnet = "*"
-log = "*"
 dns-parser = "*"
 rand = "*"
 chrono = "*"
+
 structopt = "*"
+clap = "*"
+
+anyhow = "*"
+log = "*"
 env_logger = "*"
 
 [profile.release]
 lto = true
+
+[package.metadata.deb]
+assets = [
+    ["target/release/dns-firewall", "/usr/bin/", "755"],
+    ["dist/shared/etc/dns-firewall/*", "/etc/dns-firewall/", "644"],
+]
+conf-files = [
+    "/etc/dns-firewall/acl",
+    "/etc/dns-firewall/config.env",
+]
+section = "net"
+maintainer-scripts = "dist/debian/maintainer-scripts"
+systemd-units = { unit-scripts = "dist/shared/lib/systemd/system" }

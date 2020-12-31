@@ -3,7 +3,7 @@ mod message_processor;
 
 use crate::access_control_tree::AccessControlTree;
 use crate::firewall_backend::FirewallBackend;
-use crate::program_options::ProxyServerSettings;
+use crate::program_config::ProxyServerConfig;
 use crate::proxy_server::access_logger::LogEntryKind;
 use crate::proxy_server::message_processor::{
     DnsMessageProcessor, ForwardedRequest, RequestReaction, ResponseReaction,
@@ -32,7 +32,7 @@ pub struct ProxyServer {
 
 impl ProxyServer {
     pub async fn new(
-        settings: ProxyServerSettings,
+        settings: ProxyServerConfig,
         access_control_tree: AccessControlTree,
         firewall_backend: Box<dyn FirewallBackend>,
     ) -> anyhow::Result<Arc<Self>> {

@@ -1,14 +1,14 @@
 mod access_control_list_parser;
 mod access_control_tree;
 mod firewall_backend;
-mod program_options;
+mod program_config;
 mod protocol;
 mod proxy_server;
 
 use crate::firewall_backend::iptables::IptablesFirewallBackend;
 use crate::firewall_backend::noop::NoopFirewallBackend;
 use crate::firewall_backend::FirewallBackend;
-use crate::program_options::ProgramOptions;
+use crate::program_config::{FirewallKind, ProgramConfig};
 use crate::proxy_server::ProxyServer;
 use anyhow::Context;
 use env_logger::Env;
@@ -17,7 +17,7 @@ use tokio::signal::unix::{signal, SignalKind};
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     // Parse options
-    let options = ProgramOptions::parse();
+    let options = ProgramConfig::parse();
 
     // Set up logging
     env_logger::Builder::from_env(Env::default().default_filter_or(if cfg!(debug_assertions) {
@@ -32,7 +32,7 @@ async fn main() -> anyhow::Result<()> {
     run(options).await
 }
 
-async fn run(options: ProgramOptions) -> anyhow::Result<()> {
+async fn run(options: ProgramConfig) -> anyhow::Result<()> {
     let access_control_tree = access_control_list_parser::parse_file(&options.acl_file)
         .with_context(|| {
             format!(
@@ -41,12 +41,25 @@ async fn run(options: ProgramOptions) -> anyhow::Result<()> {
             )
         })?;
 
-    let firewall_backend: Box<dyn FirewallBackend> = match options.firewall {
-        program_options::Firewall::NoFirewall => Box::new(NoopFirewallBackend::new()),
-        program_options::Firewall::Iptables { chain } => Box::new(
-            IptablesFirewallBackend::new(chain)
-                .context("Failed to initialize iptables firewall backend")?,
-        ),
+    let firewall_backend: Box<dyn FirewallBackend> = match options.firewall.backend {
+        FirewallKind::none => Box::new(NoopFirewallBackend::new()),
+        FirewallKind::iptables => {
+            let chain = options
+                .firewall
+                .chain
+                .unwrap_or_default()
+                .trim()
+                .to_string();
+
+            if chain.is_empty() {
+                anyhow::bail!("Firewall chain is empty, please update your config.");
+            }
+
+            Box::new(
+                IptablesFirewallBackend::new(chain)
+                    .context("Failed to initialize iptables firewall backend")?,
+            )
+        }
     };
 
     let proxy_server =

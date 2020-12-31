@@ -1,0 +1,31 @@
+[Unit]
+Description=dns-firewall
+After=network.target
+
+[Service]
+Type=simple
+
+EnvironmentFile=/etc/dns-firewall/config.env
+
+# Do not run as root, create an ephemeral user + group instead.
+# We add the required capabilities instead:
+# CAP_NET_ADMIN and CAP_NET_RAW are required to operate iptables
+# CAP_NET_BIND_SERVICE is required to bind to ports < 1000
+DynamicUser=true
+User=dns-firewall-u
+Group=dns-firewall-g
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_RAW CAP_NET_BIND_SERVICE
+
+# iptables uses a netlink socket to communicate with the kernel, which is allowed by the above capabilites.
+# However, locking is done previously, through the /run/xtables.lock file.
+# This is, by default, owned and readable/writable by root alone (or does not exist at all).
+# We make it read/writable for the dynamically created group instead (and remove the group when stopping the service):
+ExecStartPre=+/usr/bin/touch /run/xtables.lock
+ExecStartPre=+/usr/bin/chown :dns-firewall-g /run/xtables.lock
+ExecStartPre=+/usr/bin/chmod g+rw /run/xtables.lock
+ExecStart=/usr/bin/dns-firewall
+ExecStopPost=+/usr/bin/chown :root /run/xtables.lock
+
+[Install]
+WantedBy=multi-user.target

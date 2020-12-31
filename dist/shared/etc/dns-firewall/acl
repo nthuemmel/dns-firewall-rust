@@ -1,0 +1,16 @@
+# Insert your access control rules here.
+# General format to grant access to a domain: [client IP/subnet] -> [domain]:[protocol]:[port]
+# To only allow DNS requests without adding firewall exceptions, use: [client IP/subnet] ~> [domain]
+# Examples:
+
+#127.0.0.1   -> github.com:TCP:443
+#92.168.1.10 -> example.com:UDP:655
+#2001:0db8:85a3:0000:0000:8a2e:0370:7334 -> example.com:TCP:22
+
+#192.168.2.0/24 -> download.docker.com:TCP:443
+#192.168.2.0/24 -> registry-1.docker.io:TCP:443
+#192.168.2.0/24 -> auth.docker.io:TCP:443
+#192.168.2.0/24 -> production.cloudflare.docker.com:TCP:443
+
+#192.168.1.10 ~> mail.local
+#192.168.1.1  ~> *            # Using wildcard is possible too, to allow all DNS requests
