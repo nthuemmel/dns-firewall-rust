@@ -43,7 +43,7 @@ It can, for instance, be installed on a router to ensure that a set of managed s
 	# Everything after # will be treated as comments and ignored.
 
 	127.0.0.1   -> github.com:TCP:443
-	92.168.1.10 -> example.com:UDP:655
+	92.168.1.10 -> *.example.com:UDP:655  # You can use subdomain wildcards
 	2001:0db8:85a3:0000:0000:8a2e:0370:7334 -> example.com:TCP:22
 
 	192.168.2.0/24 -> download.docker.com:TCP:443
@@ -117,7 +117,7 @@ When using systemd, the environment variables can be loaded from a configuration
 All options can be queried by running `dns-firewall --help`. Help output:
 
 ```
-dns-firewall 1.0.0
+dns-firewall 1.1.1
 
 USAGE:
     dns-firewall [OPTIONS] --acl-file <acl-file> --firewall <backend> --upstream <upstream>
@@ -156,13 +156,13 @@ Rule syntax:
   Allows DNS queries of A or AAAA records and network connections from the client to the given `[domain]:[protocol]:[port]` triple.
 
 	* `[client IP address or subnet]` must be an IPv4 or IPv6 address or subnet in CIDR notation.
-	* `[domain]` must be a fully qualified domain name (FQDN). No wildcards are allowed. Trailing dot can be either set or omitted.
+	* `[domain]` must be a fully qualified domain name (FQDN) or wildcard address (`*.example.com` to match subdomains of `example.com` (`example.com` itself excluded!) or `*` to match any domain).
 	* `[protocol]` must be either `TCP` or `UDP`.
 	* `[port]` must be a single port in the range 1 - 65535.
 
 * `[client IP address or subnet] ~> [domain]` or `[client IP address or subnet] ~> *`
 
-  Allows arbitrary DNS requests to either the given FQDN (`[domain]`) or to *all* domains (`*`).
+  Allows arbitrary DNS requests to the given FQDN or wildcard address (`[domain]`).
   Note the `~>` arrow (instead of `->`)!
   Does not affect firewall configuration.
 
