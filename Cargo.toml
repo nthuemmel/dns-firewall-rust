@@ -21,6 +21,9 @@ anyhow = { version = "*" }
 log = { version = "*" }
 env_logger = { version = "*" }
 
+[dev-dependencies]
+maplit = "*"
+
 [profile.release]
 lto = true
 
