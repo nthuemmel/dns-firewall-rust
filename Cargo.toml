@@ -5,6 +5,7 @@ version = "0.1.0"
 authors = ["Nikolaus Thümmel <commit.nthuemmel@ntcomputer.de>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
+readme = "README.md"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
