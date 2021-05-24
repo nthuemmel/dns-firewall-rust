@@ -14,7 +14,7 @@ use anyhow::Context;
 use env_logger::Env;
 use tokio::signal::unix::{signal, SignalKind};
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {
     // Parse options
     let options = ProgramConfig::parse();

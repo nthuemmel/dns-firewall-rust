@@ -8,18 +8,18 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 
 [dependencies]
-tokio = { version = "1", features = ["full"] }
-ipnet = "*"
-dns-parser = "*"
-rand = "*"
-chrono = "*"
+tokio = { version = "1", default-features = false, features = ["rt", "io-util", "net", "process", "sync", "time", "macros", "signal"] }
+ipnet = { version = "*" }
+dns-parser = { version = "*" }
+rand = { version = "*" }
+chrono = { version = "*", default-features = false }
 
-structopt = "*"
-clap = "*"
+structopt = { version = "*" }
+clap = { version = "*" }
 
-anyhow = "*"
-log = "*"
-env_logger = "*"
+anyhow = { version = "*" }
+log = { version = "*" }
+env_logger = { version = "*" }
 
 [profile.release]
 lto = true
