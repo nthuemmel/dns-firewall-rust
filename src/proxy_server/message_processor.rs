@@ -127,9 +127,13 @@ impl DnsMessageProcessor {
             let mut allowed_destination_sockets = Vec::new();
 
             for act_entry in &act_entries {
-                if let Some(entry) = act_entry.domain_name_map.get(&qname) {
-                    always_allow_dns_question |= entry.allow_all_dns_questions;
-                    allowed_destination_sockets.extend(entry.allowed_destination_sockets.iter());
+                for domain in act_entry
+                    .domains
+                    .iter()
+                    .filter(|domain| domain.name.matches(&qname))
+                {
+                    always_allow_dns_question |= domain.allow_all_dns_questions;
+                    allowed_destination_sockets.extend(domain.allowed_destination_sockets.iter());
                 }
             }
 

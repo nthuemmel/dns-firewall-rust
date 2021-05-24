@@ -1,5 +1,5 @@
 use crate::access_control_tree::{
-    ACTSocketAddress, ACTSubnet, AccessControlTree, AccessControlTreeBuilder,
+    ACTSocketAddress, ACTSubnet, AccessControlTree, AccessControlTreeBuilder, DomainNamePattern,
 };
 use crate::protocol::Protocol;
 use anyhow::Context;
@@ -49,7 +49,9 @@ fn process_line(line: &str, tree_builder: &mut AccessControlTreeBuilder) -> anyh
         }
 
         // Parse domain name
-        let domain_name = destination_tokens[0].trim().to_string();
+        let domain_name = destination_tokens[0].trim();
+        let domain_name = DomainNamePattern::parse(domain_name)
+            .with_context(|| format!("'{}' is not a valid domain name pattern", domain_name))?;
 
         // Parse protocol
         let protocol_str = destination_tokens[1].trim();
@@ -64,9 +66,7 @@ fn process_line(line: &str, tree_builder: &mut AccessControlTreeBuilder) -> anyh
         // Parse client address & insert ACT entry
         insert_act_entry(tree_builder, client_address, |entry| {
             entry
-                .domain_name_map
-                .entry(domain_name)
-                .or_default()
+                .get_or_create_domain_entry(domain_name)
                 .allowed_destination_sockets
                 .push(ACTSocketAddress { protocol, port });
         })?;
@@ -80,17 +80,17 @@ fn process_line(line: &str, tree_builder: &mut AccessControlTreeBuilder) -> anyh
         let client_address = tokens[0].trim();
 
         // Parse domain name
-        let domain_name = tokens[1].trim().to_string();
+        let domain_name = tokens[1].trim();
+        let domain_name = DomainNamePattern::parse(domain_name)
+            .with_context(|| format!("'{}' is not a valid domain name pattern", domain_name))?;
 
         // Parse client address & insert ACT entry
         insert_act_entry(tree_builder, client_address, |entry| {
-            if domain_name == "*" {
+            if domain_name == DomainNamePattern::Any {
                 entry.allow_all_dns_queries = true;
             } else {
                 entry
-                    .domain_name_map
-                    .entry(domain_name)
-                    .or_default()
+                    .get_or_create_domain_entry(domain_name)
                     .allow_all_dns_questions = true;
             }
         })?;
@@ -151,9 +151,12 @@ mod test {
 2001:0db8:85a3:0000:0000:8a2e:0370:7334 -> example.com:TCP:22
 
 10.34.3.3 -> example.local:UDP:3478
+10.34.3.3 ~> *.matrix.org
 10.3.4.5 ~> *
 192.168.1.1 -> service.local:tcp:443
 192.168.1.1 -> service.local:udp:333
+192.168.1.1 -> *.matrix.org:TCP:443
+192.168.1.1 -> *:TCP:22
    # huh
 "#;
         let act = parse(input);
@@ -161,12 +164,14 @@ mod test {
         let expected_entries = hashmap! {
             IpNet::from_str("192.168.4.0/24").unwrap() => ACTSubnet {
                 allow_all_dns_queries: false,
-                domain_name_map: hashmap! {
-                    "mail.local".to_string() => ACTDomain {
+                domains: vec![
+                    ACTDomain {
+                        name: DomainNamePattern::Exact { fqdn: "mail.local".to_string() },
                         allow_all_dns_questions: true,
                         allowed_destination_sockets: vec![],
                     },
-                    "r3.o.lencr.org".to_string() => ACTDomain {
+                    ACTDomain {
+                        name: DomainNamePattern::Exact { fqdn: "r3.o.lencr.org".to_string() },
                         allow_all_dns_questions: false,
                         allowed_destination_sockets: vec![
                             ACTSocketAddress {
@@ -175,12 +180,13 @@ mod test {
                             }
                         ]
                     }
-                },
+                ],
             },
             IpAddr::from_str("2001:0db8:85a3:0000:0000:8a2e:0370:7334").unwrap().into() => ACTSubnet {
                 allow_all_dns_queries: false,
-                domain_name_map: hashmap! {
-                    "example.com".to_string() => ACTDomain {
+                domains: vec![
+                    ACTDomain {
+                        name: DomainNamePattern::Exact { fqdn: "example.com".to_string() },
                         allow_all_dns_questions: false,
                         allowed_destination_sockets: vec![
                             ACTSocketAddress {
@@ -189,12 +195,13 @@ mod test {
                             }
                         ]
                     }
-                },
+                ],
             },
             IpAddr::from_str("10.34.3.3").unwrap().into() => ACTSubnet {
                 allow_all_dns_queries: false,
-                domain_name_map: hashmap! {
-                    "example.local".to_string() => ACTDomain {
+                domains: vec![
+                    ACTDomain {
+                        name: DomainNamePattern::Exact { fqdn: "example.local".to_string() },
                         allow_all_dns_questions: false,
                         allowed_destination_sockets: vec![
                             ACTSocketAddress {
@@ -202,17 +209,23 @@ mod test {
                                 port: 3478,
                             }
                         ]
+                    },
+                    ACTDomain {
+                        name: DomainNamePattern::AllSubdomainsOf { fqdn_tail: ".matrix.org".to_string() },
+                        allow_all_dns_questions: true,
+                        allowed_destination_sockets: vec![],
                     }
-                },
+                ],
             },
             IpAddr::from_str("10.3.4.5").unwrap().into() => ACTSubnet {
                 allow_all_dns_queries: true,
-                domain_name_map: hashmap! {},
+                domains: vec![],
             },
             IpAddr::from_str("192.168.1.1").unwrap().into() => ACTSubnet {
                 allow_all_dns_queries: false,
-                domain_name_map: hashmap! {
-                    "service.local".to_string() => ACTDomain {
+                domains: vec![
+                    ACTDomain {
+                        name: DomainNamePattern::Exact { fqdn: "service.local".to_string() },
                         allow_all_dns_questions: false,
                         allowed_destination_sockets: vec![
                             ACTSocketAddress {
@@ -224,8 +237,28 @@ mod test {
                                 port: 333,
                             }
                         ]
+                    },
+                    ACTDomain {
+                        name: DomainNamePattern::AllSubdomainsOf { fqdn_tail: ".matrix.org".to_string() },
+                        allow_all_dns_questions: false,
+                        allowed_destination_sockets: vec![
+                            ACTSocketAddress {
+                                protocol: Protocol::Tcp,
+                                port: 443,
+                            }
+                        ]
+                    },
+                    ACTDomain {
+                        name: DomainNamePattern::Any,
+                        allow_all_dns_questions: false,
+                        allowed_destination_sockets: vec![
+                            ACTSocketAddress {
+                                protocol: Protocol::Tcp,
+                                port: 22,
+                            }
+                        ]
                     }
-                },
+                ],
             },
         };
 
@@ -272,5 +305,21 @@ mod test {
     #[should_panic(expected = "invalid IP address syntax")]
     fn invalid_ip() {
         parse("xfoo -> dest.local:TCP:80");
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Wildcards (*) may only appear at the beginning in place of a subdomain"
+    )]
+    fn invalid_wildcard_beginning() {
+        parse("192.168.1.1 -> *foo.bar:TCP:80");
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Wildcards (*) may only appear at the beginning in place of a subdomain"
+    )]
+    fn invalid_wildcard_middle() {
+        parse("192.168.1.1 -> foo*bar:TCP:80");
     }
 }
