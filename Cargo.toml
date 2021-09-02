@@ -26,6 +26,8 @@ maplit = "*"
 
 [profile.release]
 lto = true
+panic = 'abort'
+opt-level = 's'
 
 [package.metadata.deb]
 assets = [
