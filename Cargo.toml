@@ -19,7 +19,7 @@ clap = { version = "*" }
 
 anyhow = { version = "*" }
 log = { version = "*" }
-env_logger = { version = "*" }
+env_logger = { version = "*", default-features = false, features = ["termcolor", "atty", "humantime"] }
 
 [dev-dependencies]
 maplit = "*"

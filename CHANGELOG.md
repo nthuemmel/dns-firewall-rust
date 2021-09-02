@@ -2,6 +2,7 @@
 
 ## Next Release
 
+* Attempted to decrease release binary size
 * Updated dependencies
 
 ## v1.1.1 (2021-05-24)
