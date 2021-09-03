@@ -23,7 +23,7 @@ impl FirewallBackend for NoopFirewallBackend {
         _destination_socket: ACTSocketAddress,
         _ttl: Duration,
         _domain_name: &str,
-    ) -> Pin<Box<dyn Future<Output = ()> + Send>> {
-        Box::pin(async {})
+    ) -> Pin<Box<dyn Future<Output = Result<(), ()>> + Send>> {
+        Box::pin(async { Ok(()) })
     }
 }

@@ -3,6 +3,7 @@
 ## Next Release
 
 * Use protocol numbers instead of protocol names in `ipset` commands. Fixes errors on platforms which do not read `/etc/protocols`
+* Do not forward responses if firewall configuration fails, reply with `ServerError` instead. This prevents mismatching state between DNS client and firewall, which can lead to connection errors which are hard to recover from, when the DNS client caches responses itself.
 * Attempted to decrease release binary size
 * Updated dependencies
 

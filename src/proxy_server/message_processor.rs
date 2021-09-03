@@ -338,21 +338,8 @@ impl DnsMessageProcessor {
                 };
 
                 for socket_addr in allowed_domain.socket_addrs {
-                    self.access_logger.log(
-                        client_address,
-                        LogEntryKind::ResponseForwardedAndFirewallRuleAdded,
-                        Some(forwarded_request.original_request_header.id),
-                        &format!(
-                            "{} [{}]:{}:{} TTL:{}",
-                            allowed_domain.domain_name,
-                            ip_address,
-                            socket_addr.protocol,
-                            socket_addr.port,
-                            ttl.num_seconds()
-                        ),
-                    );
-
-                    self.firewall_backend
+                    let firewall_result = self
+                        .firewall_backend
                         .add_temporary_allow_rule(
                             client_address,
                             ip_address,
@@ -362,7 +349,49 @@ impl DnsMessageProcessor {
                         )
                         .await;
 
-                    firewall_reconfigured = true;
+                    match firewall_result {
+                        Ok(()) => {
+                            self.access_logger.log(
+                                client_address,
+                                LogEntryKind::ResponseForwardedAndFirewallRuleAdded,
+                                Some(forwarded_request.original_request_header.id),
+                                &format!(
+                                    "{} [{}]:{}:{} TTL:{}",
+                                    allowed_domain.domain_name,
+                                    ip_address,
+                                    socket_addr.protocol,
+                                    socket_addr.port,
+                                    ttl.num_seconds()
+                                ),
+                            );
+
+                            firewall_reconfigured = true
+                        }
+
+                        Err(()) => {
+                            self.access_logger.log(
+                                client_address,
+                                LogEntryKind::ResponseError,
+                                Some(forwarded_request.original_request_header.id),
+                                &format!(
+                                    "{} [{}]:{}:{} TTL:{} Firewall configuration failed",
+                                    allowed_domain.domain_name,
+                                    ip_address,
+                                    socket_addr.protocol,
+                                    socket_addr.port,
+                                    ttl.num_seconds()
+                                ),
+                            );
+
+                            Self::build_response(
+                                &forwarded_request.original_request_header,
+                                ResponseCode::ServerFailure,
+                                buffer,
+                            );
+
+                            return ResponseReaction::ForwardToClient;
+                        }
+                    }
                 }
             }
         }

@@ -181,15 +181,16 @@ impl IptablesFirewallBackend {
         )
     }
 
-    async fn run_process_async(program: &str, args: &[&str]) {
-        let _ = Self::handle_process_output(
+    async fn run_process_async(program: &str, args: &[&str]) -> Result<(), ()> {
+        Self::handle_process_output(
             program,
             args,
             tokio::process::Command::new(program)
                 .args(args)
                 .output()
                 .await,
-        );
+        )
+        .map_err(|_| ())
     }
 
     fn handle_process_output(
@@ -228,7 +229,7 @@ impl FirewallBackend for IptablesFirewallBackend {
         destination_socket: ACTSocketAddress,
         ttl: Duration,
         domain_name: &'a str,
-    ) -> Pin<Box<dyn Future<Output = ()> + Send + 'a>> {
+    ) -> Pin<Box<dyn Future<Output = Result<(), ()>> + Send + 'a>> {
         Box::pin(async move {
             if client_ip_address.is_loopback() {
                 // In case the client is localhost, we add *both* IPv4 and IPv6 rules whenever possible
@@ -251,7 +252,7 @@ impl FirewallBackend for IptablesFirewallBackend {
                             "-exist",
                         ],
                     )
-                    .await;
+                    .await?;
                 }
 
                 if self.ipv6_enabled {
@@ -278,7 +279,7 @@ impl FirewallBackend for IptablesFirewallBackend {
                             "-exist",
                         ],
                     )
-                    .await;
+                    .await?;
                 }
             } else if (client_ip_address.is_ipv4() && self.ipv4_enabled)
                 || (client_ip_address.is_ipv6() && self.ipv6_enabled)
@@ -312,8 +313,10 @@ impl FirewallBackend for IptablesFirewallBackend {
                         "-exist",
                     ],
                 )
-                .await;
+                .await?;
             }
+
+            Ok(())
         })
     }
 }
