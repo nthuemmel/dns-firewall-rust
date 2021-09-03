@@ -241,7 +241,7 @@ impl FirewallBackend for IptablesFirewallBackend {
                             &format!(
                                 "{},{}:{}",
                                 destination_ip_address,
-                                destination_socket.protocol,
+                                destination_socket.protocol.number(), // Don't use protocol name, /etc/protocols may not be read by all systems (e.g. OpenWRT)
                                 destination_socket.port
                             ),
                             "timeout",
@@ -267,7 +267,9 @@ impl FirewallBackend for IptablesFirewallBackend {
                             &format!("{}{}", self.chain_name, IP6_LOCAL_SET_SUFFIX),
                             &format!(
                                 "{},{}:{}",
-                                ip6, destination_socket.protocol, destination_socket.port
+                                ip6,
+                                destination_socket.protocol.number(), // Don't use protocol name, /etc/protocols may not be read by all systems (e.g. OpenWRT)
+                                destination_socket.port
                             ),
                             "timeout",
                             &ttl.num_seconds().to_string(),
@@ -299,7 +301,7 @@ impl FirewallBackend for IptablesFirewallBackend {
                         &format!(
                             "{},{}:{},{}",
                             client_ip_address,
-                            destination_socket.protocol,
+                            destination_socket.protocol.number(), // Don't use protocol name, /etc/protocols may not be read by all systems (e.g. OpenWRT)
                             destination_socket.port,
                             destination_ip_address,
                         ),

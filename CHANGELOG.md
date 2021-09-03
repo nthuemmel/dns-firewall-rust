@@ -2,6 +2,7 @@
 
 ## Next Release
 
+* Use protocol numbers instead of protocol names in `ipset` commands. Fixes errors on platforms which do not read `/etc/protocols`
 * Attempted to decrease release binary size
 * Updated dependencies
 

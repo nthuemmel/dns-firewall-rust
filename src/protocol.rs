@@ -14,6 +14,15 @@ impl Protocol {
             None
         }
     }
+
+    /// Returns the protocol number as per https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
+    /// (usually stored in /etc/protocols)
+    pub fn number(self) -> u32 {
+        match self {
+            Self::Tcp => 6,
+            Self::Udp => 17,
+        }
+    }
 }
 
 impl std::fmt::Display for Protocol {
