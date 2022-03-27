@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::net::IpAddr;
 
 pub struct AccessLogger {}
@@ -14,12 +15,12 @@ pub enum LogEntryKind {
 }
 
 impl AccessLogger {
-    pub fn log(
+    pub fn log<M: Display>(
         &self,
         client_address: IpAddr,
         kind: LogEntryKind,
         request_id: Option<u16>,
-        message: &str,
+        message: M,
     ) {
         let arrow = match kind {
             LogEntryKind::RequestError => "!>",

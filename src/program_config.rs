@@ -18,7 +18,7 @@ pub struct ProgramConfig {
     pub firewall: FirewallConfig,
 }
 
-#[derive(Debug, StructOpt)]
+#[derive(Clone, Copy, Debug, StructOpt)]
 pub struct ProxyServerConfig {
     /// IP address of the upstream server
     #[structopt(long, env)]

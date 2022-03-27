@@ -1,7 +1,7 @@
 pub mod iptables;
 pub mod noop;
 
-use crate::access_control_tree::ACTSocketAddress;
+use crate::access_control_tree::SocketAddress;
 use std::future::Future;
 use std::net::IpAddr;
 use std::pin::Pin;
@@ -18,7 +18,7 @@ pub trait FirewallBackend: Send + Sync {
         &'a self,
         client_ip_address: IpAddr,
         destination_ip_address: IpAddr,
-        destination_socket: ACTSocketAddress,
+        destination_socket: SocketAddress,
         ttl: chrono::Duration,
         domain_name: &'a str,
     ) -> Pin<Box<dyn Future<Output = Result<(), ()>> + Send + 'a>>;

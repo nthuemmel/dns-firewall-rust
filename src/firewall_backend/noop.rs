@@ -1,4 +1,4 @@
-use crate::access_control_tree::ACTSocketAddress;
+use crate::access_control_tree::SocketAddress;
 use crate::firewall_backend::FirewallBackend;
 use chrono::Duration;
 use std::net::IpAddr;
@@ -20,7 +20,7 @@ impl FirewallBackend for NoopFirewallBackend {
         &self,
         _client_ip_address: IpAddr,
         _destination_ip_address: IpAddr,
-        _destination_socket: ACTSocketAddress,
+        _destination_socket: SocketAddress,
         _ttl: Duration,
         _domain_name: &str,
     ) -> Pin<Box<dyn Future<Output = Result<(), ()>> + Send>> {

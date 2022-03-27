@@ -10,19 +10,25 @@ readme = "README.md"
 [dependencies]
 tokio = { version = "1", default-features = false, features = ["rt", "io-util", "net", "process", "sync", "time", "macros", "signal"] }
 ipnet = { version = "*" }
-dns-parser = { version = "*" }
+trust-dns-proto = { version = "*" }
 rand = { version = "*" }
 chrono = { version = "*", default-features = false }
 
 structopt = { version = "*" }
 clap = { version = "*" }
 
+thiserror = { version = "*" }
 anyhow = { version = "*" }
 log = { version = "*" }
 env_logger = { version = "*", default-features = false, features = ["termcolor", "atty", "humantime"] }
 
 [dev-dependencies]
 maplit = "*"
+assert_cmd = "*"
+lazy_static = "*"
+tempfile = "*"
+trust-dns-resolver = "*"
+assert_matches = "*"
 
 [profile.release]
 lto = true

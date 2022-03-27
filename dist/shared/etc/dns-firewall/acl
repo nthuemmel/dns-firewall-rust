@@ -14,3 +14,6 @@
 
 #192.168.1.10 ~> mail.local
 #192.168.1.1  ~> *            # Using wildcard is possible too, to allow all DNS requests
+
+#92.168.1.10  -| wpad.example.com              # Always block access to 'wpad.example.com', even if there is a more general wildcard allow rule
+#10.0.0.8     -| ads.example.com = 127.0.0.1   # Always resolve 'ads.example.com' to 127.0.0.1, does not add firewall exception

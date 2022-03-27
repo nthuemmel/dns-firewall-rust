@@ -1,4 +1,4 @@
-use crate::access_control_tree::ACTSocketAddress;
+use crate::access_control_tree::SocketAddress;
 use crate::firewall_backend::FirewallBackend;
 use anyhow::bail;
 use chrono::Duration;
@@ -226,7 +226,7 @@ impl FirewallBackend for IptablesFirewallBackend {
         &'a self,
         client_ip_address: IpAddr,
         destination_ip_address: IpAddr,
-        destination_socket: ACTSocketAddress,
+        destination_socket: SocketAddress,
         ttl: Duration,
         domain_name: &'a str,
     ) -> Pin<Box<dyn Future<Output = Result<(), ()>> + Send + 'a>> {

@@ -71,7 +71,11 @@ async fn run(options: ProgramConfig) -> anyhow::Result<()> {
     let mut sigterm = signal(SignalKind::terminate()).unwrap();
     let mut sigquit = signal(SignalKind::quit()).unwrap();
 
-    log::info!("Server started!");
+    log::info!(
+        "Server started on [{}]:{}!",
+        options.proxy_server.bind,
+        options.proxy_server.bind_port
+    );
 
     // Run until a fatal error is encountered or one of the specified signals are received
     (tokio::select! {

@@ -42,8 +42,8 @@ It can, for instance, be installed on a router to ensure that a set of managed s
 	# To only allow DNS requests without adding firewall exceptions, use: [client IP/subnet] ~> [domain]
 	# Everything after # will be treated as comments and ignored.
 
-	127.0.0.1   -> github.com:TCP:443
-	92.168.1.10 -> *.example.com:UDP:655  # You can use subdomain wildcards
+	127.0.0.1      -> github.com:TCP:443
+	92.168.1.10    -> *.example.com:UDP:655  # You can use subdomain wildcards
 	2001:0db8:85a3:0000:0000:8a2e:0370:7334 -> example.com:TCP:22
 
 	192.168.2.0/24 -> download.docker.com:TCP:443
@@ -51,8 +51,11 @@ It can, for instance, be installed on a router to ensure that a set of managed s
 	192.168.2.0/24 -> auth.docker.io:TCP:443
 	192.168.2.0/24 -> production.cloudflare.docker.com:TCP:443
 
-	192.168.1.10 ~> mail.local   # Only allow DNS requests, don't add firewall rules
-	192.168.1.1  ~> *            # Using wildcard is possible too, to allow all DNS requests
+	192.168.1.10   ~> mail.local   # Only allow DNS requests, don't add firewall rules
+	192.168.1.1    ~> *            # Using wildcard is possible too, to allow all DNS requests
+   
+    92.168.1.10    -| wpad.example.com              # Always block access to 'wpad.example.com', even if there is a more general wildcard allow rule
+    10.0.0.8       -| ads.example.com = 127.0.0.1   # Always resolve 'ads.example.com' to 127.0.0.1, does not add firewall exception
     ```
 	
 	Open `/etc/dns-firewall/config.env` in a text editor. Edit at least the following lines:
@@ -155,16 +158,25 @@ Rule syntax:
 
   Allows DNS queries of A or AAAA records and network connections from the client to the given `[domain]:[protocol]:[port]` triple.
 
-	* `[client IP address or subnet]` must be an IPv4 or IPv6 address or subnet in CIDR notation.
-	* `[domain]` must be a fully qualified domain name (FQDN) or wildcard address (`*.example.com` to match subdomains of `example.com` (`example.com` itself excluded!) or `*` to match any domain).
-	* `[protocol]` must be either `TCP` or `UDP`.
-	* `[port]` must be a single port in the range 1 - 65535.
+    * `[client IP address or subnet]` must be an IPv4 or IPv6 address or subnet in CIDR notation.
+    * `[domain]` must be a fully qualified domain name (FQDN) or wildcard address (`*.example.com` to match subdomains of `example.com` (`example.com` itself excluded!) or `*` to match any domain).
+    * `[protocol]` must be either `TCP` or `UDP`.
+    * `[port]` must be a single port in the range 1 - 65535.
 
 * `[client IP address or subnet] ~> [domain]` or `[client IP address or subnet] ~> *`
 
   Allows arbitrary DNS requests to the given FQDN or wildcard address (`[domain]`).
   Note the `~>` arrow (instead of `->`)!
   Does not affect firewall configuration.
+
+* `[client IP address or subnet] -| [domain]` or `[client IP address or subnet] -| [domain] = [ip address]`
+
+  Explicitly blocks access to the given FQDN or wildcard address (`[domain]`).
+  This may override more general allow rules.
+  If an `[ip address]` is specified, accesses will remain blocked in the firewall, but the domain will be resolved locally to the specified static IPv4 or IPv6 address.
+  Without an `[ip address]`, the DNS server will return RCODE `REFUSED`.
+  Returning an IP address, such as `127.0.0.1` may be helpful in cases where clients are unable to handle `REFUSED` DNS responses gracefully.
+
 
 ## Logging
 
@@ -207,6 +219,7 @@ Syntax is as follows:
 * `[client IP] -> [[request-id]] [domain]` Forwarding request with an allowed destination to upstream
 * `[client IP] ~> [[request-id]] [domain]` Forwarding allowed DNS request to upstream (without firewall integration)
 * `[client IP] |> [[request-id]] [domain]` Blocked client request
+* `[client IP] |> [[request-id]] [domain] [[resolved-ip-address]]` Resolved domain locally to the given IP address, firewall not affected
 * `[client IP] !> [[request-id]] [errormessage]` Malformed client request / processing error
 * `[client IP] <! [[request-id]] [errormessage]` Malformed upstream response / upstream sent an error
 * `[client IP] <~ [[request-id]]` Forwarding upstream DNS response to client, firewall not affected
