@@ -120,7 +120,7 @@ When using systemd, the environment variables can be loaded from a configuration
 All options can be queried by running `dns-firewall --help`. Help output:
 
 ```
-dns-firewall 1.1.1
+dns-firewall 1.2.0
 
 USAGE:
     dns-firewall [OPTIONS] --acl-file <acl-file> --firewall <backend> --upstream <upstream>
