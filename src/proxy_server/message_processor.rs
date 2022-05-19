@@ -94,10 +94,8 @@ impl DnsMessageProcessor {
 
         // We still continue even if act_matcher is empty (sender not allowed), to generate log messages
 
-        let always_allow_dns_queries = act_matcher.allow_all_dns_queries();
-
         // Validate for QUERY OPCODE, unless all DNS queries are allowed
-        if !always_allow_dns_queries {
+        if !act_matcher.allow_all_dns_queries() {
             if request.header().op_code() != OpCode::Query {
                 self.access_logger.log(
                     client_address,
@@ -166,11 +164,8 @@ impl DnsMessageProcessor {
                     allow_all_dns_questions,
                     allowed_destination_sockets,
                 }) => {
-                    let always_allow_dns_question =
-                        always_allow_dns_queries || allow_all_dns_questions;
-
                     if question.query_class() != DNSClass::IN {
-                        if always_allow_dns_question {
+                        if allow_all_dns_questions {
                             continue;
                         } else {
                             self.access_logger.log(
@@ -191,7 +186,7 @@ impl DnsMessageProcessor {
                     if question.query_type() != RecordType::A
                         && question.query_type() != RecordType::AAAA
                     {
-                        if always_allow_dns_question {
+                        if allow_all_dns_questions {
                             continue;
                         } else {
                             self.access_logger.log(

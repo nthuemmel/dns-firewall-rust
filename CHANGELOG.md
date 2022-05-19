@@ -2,6 +2,8 @@
 
 ## Next Release
 
+* Fixed issue where a wildcard allow rule of the form `~> *` would not allow DNS requests to pass through for all domains
+
 ## v1.2.0 (2022-03-27)
 
 * Add block rules (`[client IP address or subnet] -| [domain]` or `[client IP address or subnet] -| [domain] = [ip address]`)

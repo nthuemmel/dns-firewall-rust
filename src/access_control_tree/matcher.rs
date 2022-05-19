@@ -36,7 +36,13 @@ impl<'a> SubnetMatcher<'a> {
                 .map(|(_, rule)| rule)
         });
 
-        let mut result = Rule::Block(BlockRule::RefuseDnsQuery);
+        // If all DNS queries are allowed, all DNS questions to this particular FQDN are allowed
+        // too. Otherwise, we block all requests by default.
+        let mut result = if self.allow_all_dns_queries() {
+            Rule::Allow(AllowRule::for_all_dns_questions())
+        } else {
+            Rule::Block(BlockRule::RefuseDnsQuery)
+        };
 
         for rule in sorted_rules {
             match rule {
@@ -80,6 +86,7 @@ pub mod tests {
         let ip_192_168_1_24 = IpAddr::from_str("192.168.1.24").unwrap();
         let ip_192_168_2_1 = IpAddr::from_str("192.168.2.1").unwrap();
         let ip_192_168_2_255 = IpAddr::from_str("192.168.2.255").unwrap();
+        let ip_172_10_1_5 = IpAddr::from_str("172.10.1.5").unwrap();
 
         let matcher_192_168_2_1 = act.matcher(ip_192_168_2_1);
         assert_eq!(
@@ -184,6 +191,23 @@ pub mod tests {
         assert_eq!(
             matcher_1_1_1_1.find_domain_rule("other"),
             Rule::Block(BlockRule::RefuseDnsQuery)
+        );
+
+        let matcher_172_10_1_5 = act.matcher(ip_172_10_1_5);
+        assert!(matcher_172_10_1_5.allow_all_dns_queries());
+        assert_eq!(
+            matcher_172_10_1_5.find_domain_rule("app.example.com"),
+            Rule::Allow(AllowRule::for_all_dns_questions())
+        );
+        assert_eq!(
+            matcher_172_10_1_5.find_domain_rule("test.local"),
+            Rule::Allow(AllowRule {
+                allow_all_dns_questions: true,
+                allowed_destination_sockets: vec![SocketAddress {
+                    protocol: Protocol::Tcp,
+                    port: 443,
+                }]
+            })
         );
     }
 }

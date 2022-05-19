@@ -165,6 +165,7 @@ pub mod tests {
         let ipnet_192_168_1_0_24 = IpNet::from_str("192.168.1.0/24").unwrap();
         let ipnet_192_168_2_0_24 = IpNet::from_str("192.168.2.0/24").unwrap();
         let ipnet_192_168_2_0_25 = IpNet::from_str("192.168.2.0/25").unwrap();
+        let ipnet_172_10_1_0_24 = IpNet::from_str("172.10.1.0/24").unwrap();
 
         let domain_test_local = DomainNamePattern::Exact {
             fqdn: "test.local".to_string(),
@@ -295,6 +296,18 @@ pub mod tests {
         )
         .unwrap();
 
+        act1.allow_all_dns_queries(ipnet_172_10_1_0_24);
+        act1.insert_rule(
+            ipnet_172_10_1_0_24,
+            domain_test_local.clone(),
+            Rule::Allow(AllowRule::for_destination_socket(SocketAddress {
+                protocol: Protocol::Tcp,
+                port: 443,
+            })),
+            1,
+        )
+        .unwrap();
+
         let act1 = act1.build();
 
         assert_eq!(
@@ -367,7 +380,23 @@ pub mod tests {
                                 }),
                             ),]
                         }
-                    )
+                    ),
+                    (
+                        ipnet_172_10_1_0_24,
+                        SubnetConfiguration {
+                            allow_all_dns_queries: true,
+                            sorted_rules: vec![(
+                                domain_test_local.clone(),
+                                Rule::Allow(AllowRule {
+                                    allow_all_dns_questions: false,
+                                    allowed_destination_sockets: vec![SocketAddress {
+                                        protocol: Protocol::Tcp,
+                                        port: 443,
+                                    }],
+                                }),
+                            ),]
+                        }
+                    ),
                 ]
             }
         );
