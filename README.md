@@ -120,7 +120,7 @@ When using systemd, the environment variables can be loaded from a configuration
 All options can be queried by running `dns-firewall --help`. Help output:
 
 ```
-dns-firewall 1.2.0
+dns-firewall 1.2.1
 
 USAGE:
     dns-firewall [OPTIONS] --acl-file <acl-file> --firewall <backend> --upstream <upstream>
@@ -276,3 +276,11 @@ Use [cargo-edit](https://crates.io/crates/cargo-edit) (`cargo install cargo-edit
 ```
 cargo upgrade
 ```
+
+### Release
+
+1. Update version in `Cargo.toml` and `README.md`
+2. Update version & release date in `CHANGELOG.md`
+3. Create packages (`cargo deb`)
+4. Commit changes
+5. Tag commit with version

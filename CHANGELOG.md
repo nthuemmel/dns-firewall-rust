@@ -2,6 +2,8 @@
 
 ## Next Release
 
+## v1.2.1 (2022-05-20)
+
 * Fixed issue where a wildcard allow rule of the form `~> *` would not allow DNS requests to pass through for all domains
 * Updated dependencies
 
