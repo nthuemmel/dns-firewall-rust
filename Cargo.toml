@@ -8,27 +8,26 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 
 [dependencies]
-tokio = { version = "1", default-features = false, features = ["rt", "io-util", "net", "process", "sync", "time", "macros", "signal"] }
-ipnet = { version = "*" }
-trust-dns-proto = { version = "*" }
-rand = { version = "*" }
-chrono = { version = "*", default-features = false }
+tokio = { version = "1.18.2", default-features = false, features = ["rt", "io-util", "net", "process", "sync", "time", "macros", "signal"] }
+ipnet = "2.5.0"
+trust-dns-proto = "0.21.2"
+rand = "0.8.5"
+chrono = { version = "0.4.19", default-features = false }
 
-structopt = { version = "*" }
-clap = { version = "*" }
+clap = { version = "3.1.18", features = ["derive", "env"] }
 
-thiserror = { version = "*" }
-anyhow = { version = "*" }
-log = { version = "*" }
-env_logger = { version = "*", default-features = false, features = ["termcolor", "atty", "humantime"] }
+thiserror = "1.0.31"
+anyhow = "1.0.57"
+log = "0.4.17"
+env_logger = { version = "0.9.0", default-features = false, features = ["termcolor", "atty", "humantime"] }
 
 [dev-dependencies]
-maplit = "*"
-assert_cmd = "*"
-lazy_static = "*"
-tempfile = "*"
-trust-dns-resolver = "*"
-assert_matches = "*"
+maplit = "1.0.2"
+assert_cmd = "2.0.4"
+lazy_static = "1.4.0"
+tempfile = "3.3.0"
+trust-dns-resolver = "0.21.2"
+assert_matches = "1.5.0"
 
 [profile.release]
 lto = true

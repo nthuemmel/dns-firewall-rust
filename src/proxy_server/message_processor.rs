@@ -348,8 +348,8 @@ impl DnsMessageProcessor {
                 continue;
             }
 
-            let ip_address = match answer.rdata() {
-                RData::A(record) => {
+            let ip_address = match answer.data() {
+                Some(RData::A(record)) => {
                     if !client_address.is_loopback() && !client_address.is_ipv4() {
                         // Ignore resolved address when client is not localhost and uses other IP family.
                         // Both client and destination must use the same IP family in order to insert firewall rules,
@@ -358,7 +358,7 @@ impl DnsMessageProcessor {
                     }
                     IpAddr::V4(*record)
                 }
-                RData::AAAA(record) => {
+                Some(RData::AAAA(record)) => {
                     if !client_address.is_loopback() && !client_address.is_ipv6() {
                         // See RData::A above
                         continue;
@@ -503,12 +503,12 @@ impl DnsMessageProcessor {
                 IpAddr::V4(ip_addr) => {
                     record
                         .set_record_type(trust_dns_proto::rr::RecordType::A)
-                        .set_rdata(trust_dns_proto::rr::RData::A(ip_addr));
+                        .set_data(Some(trust_dns_proto::rr::RData::A(ip_addr)));
                 }
                 IpAddr::V6(ip_addr) => {
                     record
                         .set_record_type(trust_dns_proto::rr::RecordType::AAAA)
-                        .set_rdata(trust_dns_proto::rr::RData::AAAA(ip_addr));
+                        .set_data(Some(trust_dns_proto::rr::RData::AAAA(ip_addr)));
                 }
             }
 
@@ -533,7 +533,7 @@ impl DnsMessageProcessor {
     }
 }
 
-fn forward(buffer: &mut Vec<u8>, forwarded_request: &ForwardedRequest) -> ResponseReaction {
+fn forward(buffer: &mut [u8], forwarded_request: &ForwardedRequest) -> ResponseReaction {
     // Replace generated ID with original ID
     buffer[..2].copy_from_slice(&forwarded_request.original_request_header.id().to_be_bytes());
     ResponseReaction::ForwardToClient
@@ -568,7 +568,7 @@ impl ForwardedRequest {
             // Try to find CNAMEs pointing to it
             for answer in response.answers() {
                 if answer.dns_class() == DNSClass::IN {
-                    if let RData::CNAME(cname) = answer.rdata() {
+                    if let Some(RData::CNAME(cname)) = answer.data() {
                         if *cname == name {
                             let cname_source_domain_name = answer.name();
                             // Only consider this CNAME's source domain if we didn't process it

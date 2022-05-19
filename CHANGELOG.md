@@ -3,6 +3,7 @@
 ## Next Release
 
 * Fixed issue where a wildcard allow rule of the form `~> *` would not allow DNS requests to pass through for all domains
+* Updated dependencies
 
 ## v1.2.0 (2022-03-27)
 

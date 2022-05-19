@@ -266,3 +266,13 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 dual licensed as above, without any additional terms or conditions.
+
+## Maintenance
+
+### Update Dependencies
+
+Use [cargo-edit](https://crates.io/crates/cargo-edit) (`cargo install cargo-edit`) to update versions of all dependencies in `Cargo.toml`:
+
+```
+cargo upgrade
+```
