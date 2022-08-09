@@ -6,6 +6,11 @@ authors = ["Nikolaus Thümmel <commit.nthuemmel@ntcomputer.de>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
+keywords = ["firewall", "dns", "network", "server"]
+categories = ["network-programming"]
+homepage = "https://github.com/nthuemmel/dns-firewall-rust"
+repository = "https://github.com/nthuemmel/dns-firewall-rust"
+documentation = "https://github.com/nthuemmel/dns-firewall-rust"
 
 [dependencies]
 tokio = { version = "1.18.2", default-features = false, features = ["rt", "io-util", "net", "process", "sync", "time", "macros", "signal"] }
