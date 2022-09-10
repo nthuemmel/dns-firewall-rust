@@ -275,6 +275,7 @@ Use [cargo-edit](https://crates.io/crates/cargo-edit) (`cargo install cargo-edit
 
 ```
 cargo upgrade
+cargo update
 ```
 
 ### Release
