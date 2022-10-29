@@ -1,64 +1,64 @@
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '17 10 * * 6'
 
-name: Continuous Integration
+name: ci
 
 jobs:
-  check:
-    name: Check
-    runs-on: ubuntu-latest
+  test_latest:
+    name: Build & Test (latest Rust version)
+    # runs-on cannot be parameterized yet: https://stackoverflow.com/questions/71961921/specify-runner-to-be-used-depending-on-condition-in-a-github-actions-workflow
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/rust-ci
       - uses: actions-rs/cargo@v1
         with:
           command: check
-
-  test:
-    name: Test Suite
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+          args: --locked --all-targets
       - uses: actions-rs/cargo@v1
         with:
           command: test
+          args: --locked
 
-  fmt:
-    name: Rustfmt
-    runs-on: ubuntu-latest
+  test_min:
+    name: Build & Test (min Rust version)
+    # runs-on cannot be parameterized yet: https://stackoverflow.com/questions/71961921/specify-runner-to-be-used-depending-on-condition-in-a-github-actions-workflow
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/rust-ci
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - run: rustup component add rustfmt
+          rust-version: 1.61
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --locked --all-targets
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --locked
+
+  rustfmt:
+    name: rustfmt
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/rust-ci
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
 
   clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
+    name: clippy
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - run: rustup component add clippy
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/rust-ci
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -- -D warnings
+          args: --locked --all-targets -- -D warnings
