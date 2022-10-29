@@ -1,0 +1,17 @@
+name: rust-ci
+description: Centralized Rust toolchain setup
+
+inputs:
+  rust-version:
+    description: "Rust toolchain version"
+    default: "stable"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: "${{ inputs.rust-version }}"
+        components: clippy, rustfmt
+        override: true
