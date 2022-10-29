@@ -1,4 +1,4 @@
-use clap::{ArgEnum, Args, Parser};
+use clap::{Args, Parser, ValueEnum};
 use std::net::IpAddr;
 use std::path::PathBuf;
 
@@ -55,7 +55,7 @@ pub struct ProxyServerConfig {
 #[derive(Debug, Args)]
 pub struct FirewallConfig {
     /// Firewall backend
-    #[clap(long = "firewall", env = "FIREWALL", arg_enum, ignore_case = true)]
+    #[clap(long = "firewall", env = "FIREWALL", value_enum, ignore_case = true)]
     pub backend: FirewallKind,
 
     /// Firewall chain (iptables backend only)
@@ -63,7 +63,7 @@ pub struct FirewallConfig {
     pub chain: Option<String>,
 }
 
-#[derive(Debug, Clone, Copy, ArgEnum)]
+#[derive(Debug, Clone, Copy, ValueEnum)]
 #[allow(non_camel_case_types)]
 pub enum FirewallKind {
     none,
