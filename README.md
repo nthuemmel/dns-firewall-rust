@@ -1,5 +1,8 @@
 # dns-firewall
 
+[![Build Status](https://github.com/nthuemmel/dns-firewall-rust/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nthuemmel/dns-firewall-rust/actions/workflows/main.yml?query=branch%3Amaster)
+[![crates.io](https://img.shields.io/crates/v/dns-firewall.svg)](https://crates.io/crates/dns-firewall)
+
 `dns-firewall` is a filtering DNS proxy server integrating into `iptables` firewalls written in Rust.
 
 Whereas regular firewalls can only filter by destination IP address, this server can filter by destination domain name instead.
