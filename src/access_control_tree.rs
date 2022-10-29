@@ -7,14 +7,14 @@ use anyhow::bail;
 use ipnet::IpNet;
 use std::net::IpAddr;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct AccessControlTree {
     /// Entries are sorted by specificity: Most specific subnet (longest prefix) comes first,
     /// least specific last
     sorted_entries: Vec<(IpNet, SubnetConfiguration)>,
 }
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct SubnetConfiguration {
     pub allow_all_dns_queries: bool,
 
@@ -36,25 +36,25 @@ pub enum DomainNamePattern {
     },
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Rule {
     Allow(AllowRule),
     Block(BlockRule),
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct AllowRule {
     pub allow_all_dns_questions: bool,
     pub allowed_destination_sockets: Vec<SocketAddress>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BlockRule {
     RefuseDnsQuery,
     ResolveToStaticIp(IpAddr),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SocketAddress {
     pub protocol: Protocol,
     pub port: u16,

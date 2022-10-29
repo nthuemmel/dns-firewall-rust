@@ -157,6 +157,7 @@ pub mod tests {
         rule_insertion_impl();
     }
 
+    #[allow(clippy::redundant_clone)]
     pub fn rule_insertion_impl() -> AccessControlTree {
         let mut act1 = AccessControlTreeBuilder::new();
 
