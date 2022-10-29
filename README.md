@@ -277,7 +277,7 @@ dual licensed as above, without any additional terms or conditions.
 Use [cargo-edit](https://crates.io/crates/cargo-edit) (`cargo install cargo-edit`) to update versions of all dependencies in `Cargo.toml`:
 
 ```
-cargo upgrade
+cargo upgrade --compatible --incompatible
 cargo update
 ```
 
