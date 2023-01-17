@@ -82,7 +82,7 @@ impl DnsMessageProcessor {
                     client_address,
                     LogEntryKind::RequestError,
                     None,
-                    &format!("Request decoding failed: {:#}", e),
+                    format!("Request decoding failed: {:#}", e),
                 );
                 return RequestReaction::Discard;
             }
@@ -101,7 +101,7 @@ impl DnsMessageProcessor {
                     client_address,
                     LogEntryKind::RequestWarning,
                     Some(request_id),
-                    &format!(
+                    format!(
                         "Unexpected OPCODE {:?} (expected StandardQuery)",
                         request.header().op_code()
                     ),
@@ -299,7 +299,7 @@ impl DnsMessageProcessor {
                     client_address,
                     LogEntryKind::ResponseError,
                     Some(forwarded_request.request_id),
-                    &format!("Response decoding failed: {:#}", e),
+                    format!("Response decoding failed: {:#}", e),
                 );
                 return ResponseReaction::Discard;
             }
@@ -312,7 +312,7 @@ impl DnsMessageProcessor {
                 client_address,
                 LogEntryKind::ResponseError,
                 Some(forwarded_request.request_id),
-                &format!(
+                format!(
                     "Received unrelated request ID (expected {}, got {})",
                     forwarded_request.request_id,
                     response.id()
@@ -372,13 +372,7 @@ impl DnsMessageProcessor {
                 forwarded_request.find_allowed_domains_with_cnames(&response, answer.name().clone())
             {
                 let ttl = chrono::Duration::seconds(answer.ttl() as i64);
-                let ttl = if ttl < self.min_ttl {
-                    self.min_ttl
-                } else if ttl > self.max_ttl {
-                    self.max_ttl
-                } else {
-                    ttl
-                };
+                let ttl = ttl.clamp(self.min_ttl, self.max_ttl);
 
                 for socket_addr in allowed_domain.socket_addrs {
                     let firewall_result = self
@@ -398,7 +392,7 @@ impl DnsMessageProcessor {
                                 client_address,
                                 LogEntryKind::ResponseForwardedAndFirewallRuleAdded,
                                 Some(forwarded_request.original_request_header.id()),
-                                &format!(
+                                format!(
                                     "{} [{}]:{}:{} TTL:{}",
                                     allowed_domain.domain_name,
                                     ip_address,
@@ -416,7 +410,7 @@ impl DnsMessageProcessor {
                                 client_address,
                                 LogEntryKind::ResponseError,
                                 Some(forwarded_request.original_request_header.id()),
-                                &format!(
+                                format!(
                                     "{} [{}]:{}:{} TTL:{} Firewall configuration failed",
                                     allowed_domain.domain_name,
                                     ip_address,
@@ -526,7 +520,7 @@ impl DnsMessageProcessor {
                 client_address,
                 LogEntryKind::ResponseError,
                 Some(request.id()),
-                &format!("Failed to encode response with static IPs: {:#}", e),
+                format!("Failed to encode response with static IPs: {:#}", e),
             );
             Self::build_response(request.header(), ResponseCode::ServFail, into_buffer);
         }
