@@ -212,7 +212,7 @@ impl ProxyServer {
                         client_address.ip(),
                         LogEntryKind::RequestError,
                         None,
-                        &format!(
+                        format!(
                             "Request length ({} bytes) exceeds buffer capacity ({} bytes)",
                             request_length,
                             buffer.capacity()
@@ -351,7 +351,7 @@ impl ProxyServer {
             client_address.ip(),
             LogEntryKind::ResponseError,
             Some(forwarded_request.original_request_header.id()),
-            &format!("{:#}", e),
+            format!("{:#}", e),
         );
         DnsMessageProcessor::build_response(
             &forwarded_request.original_request_header,
