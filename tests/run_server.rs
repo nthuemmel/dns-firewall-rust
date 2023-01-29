@@ -16,7 +16,7 @@ lazy_static::lazy_static! {
 /// The given test closure must accept ephemeral server port as argument
 fn with_server(acl: &str, test: impl FnOnce(u16) + UnwindSafe) {
     let mut acl_file = NamedTempFile::new().expect("Failed to create temp ACL file");
-    writeln!(acl_file, "{}", acl).unwrap();
+    writeln!(acl_file, "{acl}").unwrap();
     acl_file.flush().unwrap();
 
     let random_port = rand::thread_rng().gen_range(20_000_u16..50_000_u16);

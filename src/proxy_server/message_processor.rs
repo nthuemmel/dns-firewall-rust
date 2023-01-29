@@ -82,7 +82,7 @@ impl DnsMessageProcessor {
                     client_address,
                     LogEntryKind::RequestError,
                     None,
-                    format!("Request decoding failed: {:#}", e),
+                    format!("Request decoding failed: {e:#}"),
                 );
                 return RequestReaction::Discard;
             }
@@ -151,7 +151,7 @@ impl DnsMessageProcessor {
                         client_address,
                         LogEntryKind::RequestBlocked,
                         Some(request_id),
-                        format!("{} = {}", qname, ip_addr),
+                        format!("{qname} = {ip_addr}"),
                     );
 
                     blocked_domains.push(BlockedDomain {
@@ -299,7 +299,7 @@ impl DnsMessageProcessor {
                     client_address,
                     LogEntryKind::ResponseError,
                     Some(forwarded_request.request_id),
-                    format!("Response decoding failed: {:#}", e),
+                    format!("Response decoding failed: {e:#}"),
                 );
                 return ResponseReaction::Discard;
             }
@@ -520,7 +520,7 @@ impl DnsMessageProcessor {
                 client_address,
                 LogEntryKind::ResponseError,
                 Some(request.id()),
-                format!("Failed to encode response with static IPs: {:#}", e),
+                format!("Failed to encode response with static IPs: {e:#}"),
             );
             Self::build_response(request.header(), ResponseCode::ServFail, into_buffer);
         }

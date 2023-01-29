@@ -82,7 +82,7 @@ impl DomainNamePattern {
                 fqdn_tail: if without_wildcard.ends_with('.') {
                     without_wildcard.to_string()
                 } else {
-                    format!("{}.", without_wildcard)
+                    format!("{without_wildcard}.")
                 },
             })
         } else if input.contains('*') {
@@ -95,7 +95,7 @@ impl DomainNamePattern {
                 fqdn: if input.ends_with('.') {
                     input.to_string()
                 } else {
-                    format!("{}.", input)
+                    format!("{input}.")
                 },
             })
         }
@@ -114,8 +114,8 @@ impl std::fmt::Display for DomainNamePattern {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             Self::Any => write!(f, "*"),
-            Self::Exact { fqdn } => write!(f, "{}", fqdn),
-            Self::AllSubdomainsOf { fqdn_tail } => write!(f, "*{}", fqdn_tail),
+            Self::Exact { fqdn } => write!(f, "{fqdn}"),
+            Self::AllSubdomainsOf { fqdn_tail } => write!(f, "*{fqdn_tail}"),
         }
     }
 }
