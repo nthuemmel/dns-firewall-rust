@@ -50,11 +50,11 @@ impl ProxyServer {
 
         let udp_server_socket = UdpSocket::bind(bind_socket_addr)
             .await
-            .with_context(|| format!("Failed to bind UDP server socket at {}", bind_socket_addr))?;
+            .with_context(|| format!("Failed to bind UDP server socket at {bind_socket_addr}"))?;
 
         let tcp_listener = TcpListener::bind(bind_socket_addr)
             .await
-            .with_context(|| format!("Failed to bind TCP server socket at {}", bind_socket_addr))?;
+            .with_context(|| format!("Failed to bind TCP server socket at {bind_socket_addr}"))?;
 
         Ok(Arc::new(Self {
             message_processor,
@@ -351,7 +351,7 @@ impl ProxyServer {
             client_address.ip(),
             LogEntryKind::ResponseError,
             Some(forwarded_request.original_request_header.id()),
-            format!("{:#}", e),
+            format!("{e:#}"),
         );
         DnsMessageProcessor::build_response(
             &forwarded_request.original_request_header,

@@ -34,9 +34,9 @@ impl AccessLogger {
         };
 
         if let Some(id) = request_id {
-            println!("{} {} [{}] {}", client_address, arrow, id, message);
+            println!("{client_address} {arrow} [{id}] {message}");
         } else {
-            println!("{} {} {}", client_address, arrow, message);
+            println!("{client_address} {arrow} {message}");
         }
     }
 }

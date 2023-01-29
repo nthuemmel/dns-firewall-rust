@@ -21,9 +21,9 @@ fn parse_input(reader: impl BufRead) -> anyhow::Result<AccessControlTree> {
     let mut tree_builder = AccessControlTreeBuilder::new();
 
     for (line_number, line) in reader.lines().enumerate() {
-        let line = line.with_context(|| format!("Failed to read line {}", line_number))?;
+        let line = line.with_context(|| format!("Failed to read line {line_number}"))?;
         process_line(line_number, &line, &mut tree_builder)
-            .with_context(|| format!("Failed to process line {}: {}", line_number, line))?;
+            .with_context(|| format!("Failed to process line {line_number}: {line}"))?;
     }
 
     Ok(tree_builder.build())
@@ -56,7 +56,7 @@ fn process_line(
         // Parse domain name
         let domain_name = destination_tokens[0].trim();
         let domain_name = DomainNamePattern::parse(domain_name)
-            .with_context(|| format!("'{}' is not a valid domain name pattern", domain_name))?;
+            .with_context(|| format!("'{domain_name}' is not a valid domain name pattern"))?;
 
         // Parse protocol
         let protocol_str = destination_tokens[1].trim();
@@ -65,8 +65,7 @@ fn process_line(
 
         // Parse port
         let port_str = destination_tokens[2].trim();
-        let port =
-            u16::from_str(port_str).with_context(|| format!("Invalid port '{}'", port_str))?;
+        let port = u16::from_str(port_str).with_context(|| format!("Invalid port '{port_str}'"))?;
 
         // Parse client address & insert ACT entry
         let client_subnet = parse_client_subnet(client_address)?;
@@ -93,7 +92,7 @@ fn process_line(
         // Parse domain name
         let domain_name = tokens[1].trim();
         let domain_name = DomainNamePattern::parse(domain_name)
-            .with_context(|| format!("'{}' is not a valid domain name pattern", domain_name))?;
+            .with_context(|| format!("'{domain_name}' is not a valid domain name pattern"))?;
 
         // Parse client address & insert ACT entry
         let client_subnet = parse_client_subnet(client_address)?;
@@ -129,8 +128,7 @@ fn process_line(
                 let ip_addr = destination_tokens[1].trim();
                 let ip_addr = IpAddr::from_str(ip_addr).with_context(|| {
                     format!(
-                        "Could not parse IP address '{}' - expected an IPv4 or IPv6 address",
-                        ip_addr
+                        "Could not parse IP address '{ip_addr}' - expected an IPv4 or IPv6 address"
                     )
                 })?;
 
@@ -146,7 +144,7 @@ fn process_line(
 
         // Parse domain name
         let domain_name = DomainNamePattern::parse(domain_name)
-            .with_context(|| format!("'{}' is not a valid domain name pattern", domain_name))?;
+            .with_context(|| format!("'{domain_name}' is not a valid domain name pattern"))?;
 
         // Parse client address & insert ACT entry
         let client_subnet = parse_client_subnet(client_address)?;
@@ -177,9 +175,8 @@ fn parse_client_subnet(client_address: &str) -> anyhow::Result<IpNet> {
     }
     .with_context(|| {
         format!(
-            "Could not parse client IP address '{}' - expected an IPv4 or \
-    		 IPv6 address or subnet in CIDR notation",
-            client_address
+            "Could not parse client IP address '{client_address}' - expected an IPv4 or \
+    		 IPv6 address or subnet in CIDR notation"
         )
     })?;
 
@@ -200,8 +197,7 @@ fn insert_rule(
         .insert_rule(client_subnet, domain_name, rule, line_number)
         .with_context(|| {
             format!(
-                "Could not insert {} rule for domain name pattern '{}' in client subnet {}",
-                rule_kind, domain_name_str, client_subnet
+                "Could not insert {rule_kind} rule for domain name pattern '{domain_name_str}' in client subnet {client_subnet}"
             )
         })
 }
