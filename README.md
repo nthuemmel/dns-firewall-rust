@@ -272,6 +272,21 @@ dual licensed as above, without any additional terms or conditions.
 
 ## Maintenance
 
+### Run Tests
+
+```
+cargo check --locked --all-targets
+cargo test --locked
+cargo fmt --all -- --check
+cargo clippy --locked --all-targets -- -D warnings
+```
+
+### Fix Clippy Issues
+
+```
+cargo clippy --locked --all-targets --fix --allow-dirty --allow-staged
+```
+
 ### Update Dependencies
 
 Use [cargo-edit](https://crates.io/crates/cargo-edit) (`cargo install cargo-edit`) to update versions of all dependencies in `Cargo.toml`:
