@@ -85,7 +85,7 @@ It can, for instance, be installed on a router to ensure that a set of managed s
 
 **Prerequisites:**
 
-* [Rust](https://www.rust-lang.org/tools/install) (v1.64+)
+* [Rust](https://www.rust-lang.org/tools/install) (v1.66+)
 * When creating debian packages: [cargo-deb](https://crates.io/crates/cargo-deb) (`cargo install cargo-deb`)
 
 **Building:**

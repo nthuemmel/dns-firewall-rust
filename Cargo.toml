@@ -4,7 +4,7 @@ description = "Filtering DNS proxy server with firewall integration"
 version = "1.2.1"
 authors = ["Nikolaus Thümmel <commit.nthuemmel@ntcomputer.de>"]
 edition = "2021"
-rust-version = "1.64"
+rust-version = "1.66"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 keywords = ["firewall", "dns", "network", "server"]
@@ -14,24 +14,24 @@ repository = "https://github.com/nthuemmel/dns-firewall-rust"
 documentation = "https://github.com/nthuemmel/dns-firewall-rust"
 
 [dependencies]
-tokio = { version = "1.25.0", default-features = false, features = ["rt", "io-util", "net", "process", "sync", "time", "macros", "signal"] }
-ipnet = "2.7.1"
+tokio = { version = "1.32.0", default-features = false, features = ["rt", "io-util", "net", "process", "sync", "time", "macros", "signal"] }
+ipnet = "2.8.0"
 trust-dns-proto = "0.22.0"
 rand = "0.8.5"
-chrono = { version = "0.4.23", default-features = false }
+chrono = { version = "0.4.26", default-features = false }
 
-clap = { version = "4.1.8", features = ["derive", "env"] }
+clap = { version = "4.3.23", features = ["derive", "env"] }
 
-thiserror = "1.0.38"
-anyhow = "1.0.69"
-log = "0.4.17"
+thiserror = "1.0.47"
+anyhow = "1.0.75"
+log = "0.4.20"
 env_logger = { version = "0.10.0", default-features = false, features = ["color", "auto-color", "humantime"] }
 
 [dev-dependencies]
 maplit = "1.0.2"
-assert_cmd = "2.0.8"
+assert_cmd = "2.0.10"
 lazy_static = "1.4.0"
-tempfile = "3.4.0"
+tempfile = "3.8.0"
 trust-dns-resolver = "0.22.0"
 assert_matches = "1.5.0"
 
