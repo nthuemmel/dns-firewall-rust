@@ -82,7 +82,7 @@ fn resolve(
             socket_addr: SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 53), server_port).into(),
             protocol: server_protocol,
             tls_dns_name: None,
-            trust_nx_responses: true,
+            trust_negative_responses: true,
             bind_addr: None,
         }],
     );

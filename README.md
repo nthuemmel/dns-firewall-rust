@@ -85,7 +85,7 @@ It can, for instance, be installed on a router to ensure that a set of managed s
 
 **Prerequisites:**
 
-* [Rust](https://www.rust-lang.org/tools/install) (v1.66+)
+* [Rust](https://www.rust-lang.org/tools/install) (v1.70+)
 * When creating debian packages: [cargo-deb](https://crates.io/crates/cargo-deb) (`cargo install cargo-deb`)
 
 **Building:**
@@ -123,30 +123,33 @@ When using systemd, the environment variables can be loaded from a configuration
 All options can be queried by running `dns-firewall --help`. Help output:
 
 ```
-dns-firewall 1.2.1
+Usage: dns-firewall [OPTIONS] --acl-file <ACL_FILE> --upstream <UPSTREAM> --firewall <BACKEND>
 
-USAGE:
-    dns-firewall [OPTIONS] --acl-file <acl-file> --firewall <backend> --upstream <upstream>
-
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-
-OPTIONS:
-        --acl-file <acl-file>                  Path to the Access Control List (ACL) file [env: ACL_FILE=]
-        --firewall <backend>                   Firewall backend [env: FIREWALL=]  [possible values: none, iptables]
-        --bind <bind>                          IP address to bind proxy server to [env: BIND=]  [default: 127.0.0.53]
-        --bind-port <bind-port>                Port to bind proxy server to [env: BIND_PORT=]  [default: 537]
-        --chain <chain>                        Firewall chain (iptables backend only) [env: CHAIN=]
-        --max-connections <max-connections>    Maximum number of concurrent connections [env: MAX_CONNECTIONS=]
-                                               [default: 100]
-        --max-rule-time <max-rule-time>        Maximum duration of firewall rules, in seconds; may override TTL [env:
-                                               MAX_RULE_TIME=]
-        --min-rule-time <min-rule-time>        Minimum duration of firewall rules, in seconds; may override TTL [env:
-                                               MIN_RULE_TIME=]  [default: 5]
-        --timeout <timeout>                    Connection timeout, in seconds [env: TIMEOUT=]  [default: 10]
-        --upstream <upstream>                  IP address of the upstream server [env: UPSTREAM=]
-        --upstream-port <upstream-port>        Port of the upstream server [env: UPSTREAM_PORT=]  [default: 53]
+Options:
+      --acl-file <ACL_FILE>
+          Path to the Access Control List (ACL) file [env: ACL_FILE=]
+      --upstream <UPSTREAM>
+          IP address of the upstream server [env: UPSTREAM=]
+      --upstream-port <UPSTREAM_PORT>
+          Port of the upstream server [env: UPSTREAM_PORT=] [default: 53]
+      --bind <BIND>
+          IP address to bind proxy server to [env: BIND=] [default: 127.0.0.53]
+      --bind-port <BIND_PORT>
+          Port to bind proxy server to [env: BIND_PORT=] [default: 537]
+      --max-connections <MAX_CONNECTIONS>
+          Maximum number of concurrent connections [env: MAX_CONNECTIONS=] [default: 100]
+      --timeout <TIMEOUT>
+          Connection timeout, in seconds [env: TIMEOUT=] [default: 10]
+      --min-rule-time <MIN_RULE_TIME>
+          Minimum duration of firewall rules, in seconds; may override TTL [env: MIN_RULE_TIME=] [default: 5]
+      --max-rule-time <MAX_RULE_TIME>
+          Maximum duration of firewall rules, in seconds; may override TTL [env: MAX_RULE_TIME=]
+      --firewall <BACKEND>
+          Firewall backend [env: FIREWALL=] [possible values: none, iptables]
+      --chain <CHAIN>
+          Firewall chain (iptables backend only) [env: CHAIN=]
+  -h, --help
+          Print help
 ```
 
 **Access Control List:**
@@ -292,14 +295,23 @@ cargo clippy --locked --all-targets --fix --allow-dirty --allow-staged
 Use [cargo-edit](https://crates.io/crates/cargo-edit) (`cargo install cargo-edit`) to update versions of all dependencies in `Cargo.toml`:
 
 ```
-cargo upgrade --compatible --incompatible
+cargo upgrade --compatible --incompatible --ignore-rust-version
 cargo update
 ```
 
+#### MSRV Changes
+
+On dependency updates, their *Minimum Supported Rust Version* (MSRV) may change.
+Use [cargo-msrv](https://github.com/foresterre/cargo-msrv) (`cargo install cargo-msrv`) to check MSRV correctness:
+
+1. To check if the last recorded MSRV is still valid, use: `cargo msrv verify`
+2. To figure out the updated MSRV required by dependencies, use: `cargo msrv list`
+3. Update the `rust-version` field in [`Cargo.toml`](Cargo.toml) and the versions in [README.md](#building) and [CHANGELOG.md](CHANGELOG.md#next-release)
+
 ### Release
 
-1. Update version in `Cargo.toml` and `README.md`
+1. Update version in `Cargo.toml`, update `Cargo.lock`
 2. Update version & release date in `CHANGELOG.md`
-3. Create packages (`cargo deb`)
-4. Commit changes
-5. Tag commit with version
+3. Commit changes
+4. Tag commit with version
+5. Create packages (`cargo deb`)
