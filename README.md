@@ -292,14 +292,23 @@ cargo clippy --locked --all-targets --fix --allow-dirty --allow-staged
 Use [cargo-edit](https://crates.io/crates/cargo-edit) (`cargo install cargo-edit`) to update versions of all dependencies in `Cargo.toml`:
 
 ```
-cargo upgrade --compatible --incompatible
+cargo upgrade --compatible --incompatible --ignore-rust-version
 cargo update
 ```
+
+#### MSRV Changes
+
+On dependency updates, their *Minimum Supported Rust Version* (MSRV) may change.
+Use [cargo-msrv](https://github.com/foresterre/cargo-msrv) (`cargo install cargo-msrv`) to check MSRV correctness:
+
+1. To check if the last recorded MSRV is still valid, use: `cargo msrv verify`
+2. To figure out the updated MSRV required by dependencies, use: `cargo msrv list`
+3. Update the `rust-version` field in [`Cargo.toml`](Cargo.toml)
 
 ### Release
 
 1. Update version in `Cargo.toml` and `README.md`
 2. Update version & release date in `CHANGELOG.md`
-3. Create packages (`cargo deb`)
-4. Commit changes
-5. Tag commit with version
+3. Commit changes
+4. Tag commit with version
+5. Create packages (`cargo deb`)

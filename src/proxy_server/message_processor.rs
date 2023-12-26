@@ -356,14 +356,14 @@ impl DnsMessageProcessor {
                         // unless client == localhost, in which case IP-family independent rules can be added.
                         continue;
                     }
-                    IpAddr::V4(*record)
+                    IpAddr::V4(**record)
                 }
                 Some(RData::AAAA(record)) => {
                     if !client_address.is_loopback() && !client_address.is_ipv6() {
                         // See RData::A above
                         continue;
                     }
-                    IpAddr::V6(*record)
+                    IpAddr::V6(**record)
                 }
                 _ => continue,
             };
@@ -497,12 +497,12 @@ impl DnsMessageProcessor {
                 IpAddr::V4(ip_addr) => {
                     record
                         .set_record_type(trust_dns_proto::rr::RecordType::A)
-                        .set_data(Some(trust_dns_proto::rr::RData::A(ip_addr)));
+                        .set_data(Some(trust_dns_proto::rr::RData::A(ip_addr.into())));
                 }
                 IpAddr::V6(ip_addr) => {
                     record
                         .set_record_type(trust_dns_proto::rr::RecordType::AAAA)
-                        .set_data(Some(trust_dns_proto::rr::RData::AAAA(ip_addr)));
+                        .set_data(Some(trust_dns_proto::rr::RData::AAAA(ip_addr.into())));
                 }
             }
 
@@ -563,7 +563,7 @@ impl ForwardedRequest {
             for answer in response.answers() {
                 if answer.dns_class() == DNSClass::IN {
                     if let Some(RData::CNAME(cname)) = answer.data() {
-                        if *cname == name {
+                        if **cname == name {
                             let cname_source_domain_name = answer.name();
                             // Only consider this CNAME's source domain if we didn't process it
                             // previously
