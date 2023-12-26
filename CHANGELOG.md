@@ -2,7 +2,7 @@
 
 ## Next Release
 
-* Increased minimum Rust version from 1.64.0 to 1.66.0
+* Increased minimum Rust version from 1.64.0 to 1.70.0
 * Updated dependencies
 
 ## v1.2.1 (2022-05-20)
