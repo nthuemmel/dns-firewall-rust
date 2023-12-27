@@ -1,4 +1,6 @@
 use assert_matches::assert_matches;
+use hickory_resolver::config::{NameServerConfig, Protocol, ResolverConfig, ResolverOpts};
+use hickory_resolver::proto::op::ResponseCode;
 use rand::Rng;
 use std::io::Write;
 use std::net::{IpAddr, Ipv4Addr, SocketAddrV4};
@@ -6,8 +8,6 @@ use std::panic::UnwindSafe;
 use std::path::PathBuf;
 use std::time::Duration;
 use tempfile::NamedTempFile;
-use trust_dns_resolver::config::{NameServerConfig, Protocol, ResolverConfig, ResolverOpts};
-use trust_dns_resolver::proto::op::ResponseCode;
 
 lazy_static::lazy_static! {
     static ref COMPILED_BINARY_PATH: PathBuf = assert_cmd::cargo::cargo_bin("dns-firewall");
@@ -52,7 +52,7 @@ fn with_server(acl: &str, test: impl FnOnce(u16) + UnwindSafe) {
 enum ResolveResult {
     Resolved(Vec<IpAddr>),
     Empty(ResponseCode),
-    Error(trust_dns_resolver::error::ResolveError),
+    Error(hickory_resolver::error::ResolveError),
 }
 
 impl ResolveResult {
@@ -72,7 +72,7 @@ impl ResolveResult {
 #[must_use]
 fn resolve(
     server_port: u16,
-    server_protocol: trust_dns_resolver::config::Protocol,
+    server_protocol: hickory_resolver::config::Protocol,
     domain: &str,
 ) -> ResolveResult {
     let resolver_config = ResolverConfig::from_parts(
@@ -91,14 +91,13 @@ fn resolve(
     resolver_opts.attempts = 1;
     resolver_opts.cache_size = 0;
 
-    let resolver = trust_dns_resolver::Resolver::new(resolver_config, resolver_opts).unwrap();
+    let resolver = hickory_resolver::Resolver::new(resolver_config, resolver_opts).unwrap();
 
     match resolver.lookup_ip(domain) {
         Ok(resolved) => ResolveResult::Resolved(resolved.iter().collect()),
         Err(e) => {
-            if let trust_dns_resolver::error::ResolveErrorKind::NoRecordsFound {
-                response_code,
-                ..
+            if let hickory_resolver::error::ResolveErrorKind::NoRecordsFound {
+                response_code, ..
             } = e.kind()
             {
                 ResolveResult::Empty(*response_code)
