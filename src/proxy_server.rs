@@ -9,6 +9,7 @@ use crate::proxy_server::message_processor::{
     DnsMessageProcessor, ForwardedRequest, RequestReaction, ResponseReaction,
 };
 use anyhow::Context;
+use hickory_proto::op::ResponseCode;
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
 use std::str::FromStr;
 use std::sync::Arc;
@@ -16,7 +17,6 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream, UdpSocket};
 use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 use tokio::time::{timeout, Duration};
-use trust_dns_proto::op::ResponseCode;
 
 const BUFFER_SIZE: usize = 32768;
 
