@@ -204,7 +204,7 @@ impl ProxyServer {
         let mut upstream = None;
 
         loop {
-            match timeout(self.timeout, async {
+            let receive_result = timeout(self.timeout, async {
                 let request_length = client_stream.read_u16().await?;
 
                 if request_length as usize > buffer.capacity() {
@@ -225,8 +225,9 @@ impl ProxyServer {
                 client_stream.read_exact(&mut buffer).await?;
                 Ok(())
             })
-            .await
-            {
+            .await;
+
+            match receive_result {
                 Err(_) | Ok(Err(_)) => {
                     // Either timeout or request receive error, terminate connection
                     return;
@@ -242,7 +243,7 @@ impl ProxyServer {
                 RequestReaction::Discard => return,
 
                 RequestReaction::ForwardToUpstream { forwarded_request } => {
-                    match async {
+                    let upstream_result = async {
                         let upstream = self.connect_upstream_tcp_socket(&mut upstream).await?;
 
                         timeout(self.timeout, async {
@@ -281,8 +282,9 @@ impl ProxyServer {
                             )
                             .await)
                     }
-                    .await
-                    {
+                    .await;
+
+                    match upstream_result {
                         Ok(ResponseReaction::Discard) => {
                             // The response did not match the request - there is no good cause of
                             // action here, we just terminate the connection
@@ -303,12 +305,13 @@ impl ProxyServer {
                 RequestReaction::RespondToClient => (),
             }
 
-            match timeout(self.timeout, async {
+            let send_result = timeout(self.timeout, async {
                 client_stream.write_u16(buffer.len() as u16).await?;
                 client_stream.write_all(&buffer).await
             })
-            .await
-            {
+            .await;
+
+            match send_result {
                 Ok(Ok(())) => (),
                 Err(_) | Ok(Err(_)) => {
                     // Timeout or sending response failed, terminate connection
