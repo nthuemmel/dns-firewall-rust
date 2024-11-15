@@ -85,7 +85,7 @@ It can, for instance, be installed on a router to ensure that a set of managed s
 
 **Prerequisites:**
 
-* [Rust](https://www.rust-lang.org/tools/install) (v1.70+)
+* [Rust](https://www.rust-lang.org/tools/install) (v1.74+)
 * When creating debian packages: [cargo-deb](https://crates.io/crates/cargo-deb) (`cargo install cargo-deb`)
 
 **Building:**
@@ -306,7 +306,7 @@ Use [cargo-msrv](https://github.com/foresterre/cargo-msrv) (`cargo install cargo
 
 1. To check if the last recorded MSRV is still valid, use: `cargo msrv verify`
 2. To figure out the updated MSRV required by dependencies, use: `cargo msrv list`
-3. Update the `rust-version` field in [`Cargo.toml`](Cargo.toml) and the versions in [README.md](#building) and [CHANGELOG.md](CHANGELOG.md#next-release)
+3. Update the `rust-version` field in [`Cargo.toml`](Cargo.toml) and the versions in [README.md](#building), [CHANGELOG.md](CHANGELOG.md#next-release) and [the `test_min` CI workflow](.github/workflows/main.yml)
 
 ### Release
 
