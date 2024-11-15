@@ -4,7 +4,7 @@
 
 ## v1.2.2 (2023-12-27)
 
-* Increased minimum Rust version from 1.64.0 to 1.74.0
+* Increased minimum Rust version from 1.64.0 to 1.81.0
 * Updated dependencies
 
 ## v1.2.1 (2022-05-20)

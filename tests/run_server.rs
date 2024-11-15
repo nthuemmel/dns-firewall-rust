@@ -52,6 +52,7 @@ fn with_server(acl: &str, test: impl FnOnce(u16) + UnwindSafe) {
 enum ResolveResult {
     Resolved(Vec<IpAddr>),
     Empty(ResponseCode),
+    #[expect(unused)] // Remove attribute once used
     Error(hickory_resolver::error::ResolveError),
 }
 
