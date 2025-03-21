@@ -28,7 +28,6 @@ log = "0.4.22"
 env_logger = { version = "0.11.5", default-features = false, features = ["color", "auto-color", "humantime"] }
 
 [dev-dependencies]
-maplit = "1.0.2"
 assert_cmd = "2.0.16"
 lazy_static = "1.5.0"
 tempfile = "3.14.0"
