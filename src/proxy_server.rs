@@ -16,7 +16,7 @@ use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream, UdpSocket};
 use tokio::sync::{OwnedSemaphorePermit, Semaphore};
-use tokio::time::{timeout, Duration};
+use tokio::time::{Duration, timeout};
 
 const BUFFER_SIZE: usize = 32768;
 

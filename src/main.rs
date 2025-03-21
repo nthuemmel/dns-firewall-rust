@@ -5,14 +5,14 @@ mod program_config;
 mod protocol;
 mod proxy_server;
 
+use crate::firewall_backend::FirewallBackend;
 use crate::firewall_backend::iptables::IptablesFirewallBackend;
 use crate::firewall_backend::noop::NoopFirewallBackend;
-use crate::firewall_backend::FirewallBackend;
 use crate::program_config::{FirewallKind, ProgramConfig};
 use crate::proxy_server::ProxyServer;
 use anyhow::Context;
 use env_logger::Env;
-use tokio::signal::unix::{signal, SignalKind};
+use tokio::signal::unix::{SignalKind, signal};
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> anyhow::Result<()> {

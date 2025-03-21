@@ -284,9 +284,10 @@ cargo fmt --all -- --check
 cargo clippy --locked --all-targets -- -D warnings
 ```
 
-### Fix Clippy Issues
+### Fix Issues
 
 ```
+cargo fmt --all
 cargo clippy --locked --all-targets --fix --allow-dirty --allow-staged
 ```
 

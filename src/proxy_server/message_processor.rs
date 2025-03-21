@@ -5,7 +5,6 @@ use anyhow::Context;
 use hickory_proto::op::{OpCode, ResponseCode};
 use hickory_proto::rr::{DNSClass, RData, RecordType};
 use hickory_proto::serialize::binary::BinEncodable;
-use rand::Rng;
 use std::net::IpAddr;
 
 pub struct DnsMessageProcessor {
@@ -267,7 +266,7 @@ impl DnsMessageProcessor {
         }
 
         // Replace request ID by a randomly generated one (to prevent potential ID clashes on malicious client input)
-        let forwarded_request_id: u16 = rand::thread_rng().gen();
+        let forwarded_request_id: u16 = rand::random();
 
         let request_header = *request.header();
 

@@ -50,7 +50,10 @@ fn process_line(
         let destination = tokens[1].trim();
         let destination_tokens = destination.split(':').collect::<Vec<_>>();
         if destination_tokens.len() != 3 {
-            bail!("Invalid destination '{}': Expected a 'domain:protocol:port' triple, e.g. 'google.com:tcp:443'", destination);
+            bail!(
+                "Invalid destination '{}': Expected a 'domain:protocol:port' triple, e.g. 'google.com:tcp:443'",
+                destination
+            );
         }
 
         // Parse domain name
@@ -160,7 +163,9 @@ fn process_line(
         return Ok(());
     }
 
-    bail!("Invalid format: Expected one of\n'[client IP address or subnet (CIDR)] -> [domain]:[protocol]:[port]' or\n'[client IP address or subnet (CIDR)] ~> [domain]' or\n'[client IP address or subnet (CIDR)] -| [domain]' or\n'[client IP address or subnet (CIDR)] -| [domain] = [IP address]'");
+    bail!(
+        "Invalid format: Expected one of\n'[client IP address or subnet (CIDR)] -> [domain]:[protocol]:[port]' or\n'[client IP address or subnet (CIDR)] ~> [domain]' or\n'[client IP address or subnet (CIDR)] -| [domain]' or\n'[client IP address or subnet (CIDR)] -| [domain] = [IP address]'"
+    );
 }
 
 fn parse_client_subnet(client_address: &str) -> anyhow::Result<IpNet> {
