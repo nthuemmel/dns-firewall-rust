@@ -1,5 +1,8 @@
 use assert_matches::assert_matches;
-use hickory_resolver::config::{NameServerConfig, Protocol, ResolverConfig, ResolverOpts};
+use hickory_proto::xfer::Protocol;
+use hickory_resolver::Resolver;
+use hickory_resolver::config::{NameServerConfig, ResolverConfig};
+use hickory_resolver::name_server::TokioConnectionProvider;
 use hickory_resolver::proto::op::ResponseCode;
 use rand::Rng;
 use std::io::Write;
@@ -19,7 +22,7 @@ fn with_server(acl: &str, test: impl FnOnce(u16) + UnwindSafe) {
     writeln!(acl_file, "{acl}").unwrap();
     acl_file.flush().unwrap();
 
-    let random_port = rand::thread_rng().gen_range(20_000_u16..50_000_u16);
+    let random_port = rand::rng().random_range(20_000_u16..50_000_u16);
 
     let mut server = std::process::Command::new(&*COMPILED_BINARY_PATH)
         .args([
@@ -53,7 +56,7 @@ enum ResolveResult {
     Resolved(Vec<IpAddr>),
     Empty(ResponseCode),
     #[expect(unused)] // Remove attribute once used
-    Error(hickory_resolver::error::ResolveError),
+    Error(hickory_resolver::ResolveError),
 }
 
 impl ResolveResult {
@@ -71,11 +74,7 @@ impl ResolveResult {
 }
 
 #[must_use]
-fn resolve(
-    server_port: u16,
-    server_protocol: hickory_resolver::config::Protocol,
-    domain: &str,
-) -> ResolveResult {
+async fn resolve(server_port: u16, server_protocol: Protocol, domain: &str) -> ResolveResult {
     let resolver_config = ResolverConfig::from_parts(
         None,
         vec![],
@@ -83,25 +82,32 @@ fn resolve(
             socket_addr: SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 53), server_port).into(),
             protocol: server_protocol,
             tls_dns_name: None,
+            http_endpoint: None,
             trust_negative_responses: true,
             bind_addr: None,
         }],
     );
 
-    let mut resolver_opts = ResolverOpts::default();
+    let mut resolver_builder =
+        Resolver::builder_with_config(resolver_config, TokioConnectionProvider::default());
+
+    let resolver_opts = resolver_builder.options_mut();
     resolver_opts.attempts = 1;
     resolver_opts.cache_size = 0;
 
-    let resolver = hickory_resolver::Resolver::new(resolver_config, resolver_opts).unwrap();
+    let resolver = resolver_builder.build();
 
-    match resolver.lookup_ip(domain) {
+    match resolver.lookup_ip(domain).await {
         Ok(resolved) => ResolveResult::Resolved(resolved.iter().collect()),
         Err(e) => {
-            if let hickory_resolver::error::ResolveErrorKind::NoRecordsFound {
-                response_code, ..
-            } = e.kind()
-            {
-                ResolveResult::Empty(*response_code)
+            if let hickory_resolver::ResolveErrorKind::Proto(proto_error) = e.kind() {
+                if let hickory_proto::ProtoErrorKind::NoRecordsFound { response_code, .. } =
+                    proto_error.kind()
+                {
+                    ResolveResult::Empty(*response_code)
+                } else {
+                    ResolveResult::Error(e)
+                }
             } else {
                 ResolveResult::Error(e)
             }
@@ -119,15 +125,48 @@ fn localhost_filtering() {
 "#;
 
     with_server(acl, |port| {
-        resolve(port, Protocol::Udp, "example.com").assert_refused();
-        resolve(port, Protocol::Tcp, "example.com").assert_refused();
-        resolve(port, Protocol::Udp, "google.com").assert_any_ip();
-        resolve(port, Protocol::Tcp, "google.com").assert_any_ip();
-        resolve(port, Protocol::Udp, "www.rust-lang.org").assert_any_ip();
-        resolve(port, Protocol::Tcp, "www.rust-lang.org").assert_any_ip();
-        resolve(port, Protocol::Udp, "refuse.me").assert_refused();
-        resolve(port, Protocol::Tcp, "refuse.me").assert_refused();
-        resolve(port, Protocol::Udp, "block.me").assert_specific_ip("13.93.4.29");
-        resolve(port, Protocol::Tcp, "block.me").assert_specific_ip("13.93.4.29");
+        let rt = tokio::runtime::Runtime::new().unwrap();
+
+        rt.block_on(async {
+            resolve(port, Protocol::Udp, "example.com")
+                .await
+                .assert_refused();
+
+            resolve(port, Protocol::Tcp, "example.com")
+                .await
+                .assert_refused();
+
+            resolve(port, Protocol::Udp, "google.com")
+                .await
+                .assert_any_ip();
+
+            resolve(port, Protocol::Tcp, "google.com")
+                .await
+                .assert_any_ip();
+
+            resolve(port, Protocol::Udp, "www.rust-lang.org")
+                .await
+                .assert_any_ip();
+
+            resolve(port, Protocol::Tcp, "www.rust-lang.org")
+                .await
+                .assert_any_ip();
+
+            resolve(port, Protocol::Udp, "refuse.me")
+                .await
+                .assert_refused();
+
+            resolve(port, Protocol::Tcp, "refuse.me")
+                .await
+                .assert_refused();
+
+            resolve(port, Protocol::Udp, "block.me")
+                .await
+                .assert_specific_ip("13.93.4.29");
+
+            resolve(port, Protocol::Tcp, "block.me")
+                .await
+                .assert_specific_ip("13.93.4.29");
+        })
     })
 }

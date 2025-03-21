@@ -42,7 +42,7 @@ impl ProxyServer {
             settings
                 .max_rule_time
                 .map(|v| chrono::Duration::seconds(v as i64))
-                .unwrap_or_else(chrono::Duration::max_value),
+                .unwrap_or(chrono::Duration::MAX),
             firewall_backend,
         );
 

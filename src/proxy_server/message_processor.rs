@@ -348,7 +348,7 @@ impl DnsMessageProcessor {
             }
 
             let ip_address = match answer.data() {
-                Some(RData::A(record)) => {
+                RData::A(record) => {
                     if !client_address.is_loopback() && !client_address.is_ipv4() {
                         // Ignore resolved address when client is not localhost and uses other IP family.
                         // Both client and destination must use the same IP family in order to insert firewall rules,
@@ -357,7 +357,7 @@ impl DnsMessageProcessor {
                     }
                     IpAddr::V4(**record)
                 }
-                Some(RData::AAAA(record)) => {
+                RData::AAAA(record) => {
                     if !client_address.is_loopback() && !client_address.is_ipv6() {
                         // See RData::A above
                         continue;
@@ -485,25 +485,12 @@ impl DnsMessageProcessor {
             .add_queries(request.take_queries());
 
         for (name, ip_addr) in answers {
-            let mut record = hickory_proto::rr::Record::new();
+            let rdata = match ip_addr {
+                IpAddr::V4(ip_addr) => RData::A(ip_addr.into()),
+                IpAddr::V6(ip_addr) => RData::AAAA(ip_addr.into()),
+            };
 
-            record
-                .set_name(name)
-                .set_dns_class(hickory_proto::rr::DNSClass::IN)
-                .set_ttl(60);
-
-            match ip_addr {
-                IpAddr::V4(ip_addr) => {
-                    record
-                        .set_record_type(hickory_proto::rr::RecordType::A)
-                        .set_data(Some(hickory_proto::rr::RData::A(ip_addr.into())));
-                }
-                IpAddr::V6(ip_addr) => {
-                    record
-                        .set_record_type(hickory_proto::rr::RecordType::AAAA)
-                        .set_data(Some(hickory_proto::rr::RData::AAAA(ip_addr.into())));
-                }
-            }
+            let record = hickory_proto::rr::Record::from_rdata(name, 60, rdata);
 
             response.add_answer(record);
         }
@@ -561,7 +548,7 @@ impl ForwardedRequest {
             // Try to find CNAMEs pointing to it
             for answer in response.answers() {
                 if answer.dns_class() == DNSClass::IN {
-                    if let Some(RData::CNAME(cname)) = answer.data() {
+                    if let RData::CNAME(cname) = answer.data() {
                         if **cname == name {
                             let cname_source_domain_name = answer.name();
                             // Only consider this CNAME's source domain if we didn't process it
