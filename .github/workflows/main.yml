@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/rust-ci
         with:
-          rust-version: 1.81.0
+          rust-version: 1.85.1
       - uses: actions-rs/cargo@v1
         with:
           command: check
