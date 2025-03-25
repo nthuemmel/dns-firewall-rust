@@ -3,7 +3,17 @@ use std::net::IpAddr;
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
-#[clap(name = "dns-firewall")]
+#[clap(
+    name = "dns-firewall",
+    version,
+    help_template = "\
+{before-help}{name} {version}
+
+{usage-heading} {usage}
+
+{all-args}{after-help}
+"
+)]
 pub struct ProgramConfig {
     /// Path to the Access Control List (ACL) file
     #[clap(long, env)]
