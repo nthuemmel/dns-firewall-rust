@@ -316,3 +316,4 @@ Use [cargo-msrv](https://github.com/foresterre/cargo-msrv) (`cargo install cargo
 3. Commit changes
 4. Tag commit with version
 5. Create packages (`cargo deb`)
+6. Publish (`cargo publish`)
