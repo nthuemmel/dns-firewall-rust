@@ -14,24 +14,24 @@ repository = "https://github.com/nthuemmel/dns-firewall-rust"
 documentation = "https://github.com/nthuemmel/dns-firewall-rust"
 
 [dependencies]
-tokio = { version = "1.44.1", default-features = false, features = ["rt", "io-util", "net", "process", "sync", "time", "macros", "signal"] }
+tokio = { version = "1.45.1", default-features = false, features = ["rt", "io-util", "net", "process", "sync", "time", "macros", "signal"] }
 ipnet = "2.11.0"
-hickory-proto = "0.25.1"
-rand = "0.9.0"
-chrono = { version = "0.4.40", default-features = false }
+hickory-proto = "0.25.2"
+rand = "0.9.1"
+chrono = { version = "0.4.41", default-features = false }
 
-clap = { version = "4.5.32", features = ["derive", "env"] }
+clap = { version = "4.5.40", features = ["derive", "env"] }
 
 thiserror = "2.0.12"
-anyhow = "1.0.97"
-log = "0.4.26"
-env_logger = { version = "0.11.7", default-features = false, features = ["color", "auto-color", "humantime"] }
+anyhow = "1.0.98"
+log = "0.4.27"
+env_logger = { version = "0.11.8", default-features = false, features = ["color", "auto-color", "humantime"] }
 
 [dev-dependencies]
-assert_cmd = "2.0.16"
+assert_cmd = "2.0.17"
 lazy_static = "1.5.0"
-tempfile = "3.19.1"
-hickory-resolver = "0.25.1"
+tempfile = "3.20.0"
+hickory-resolver = "0.25.2"
 assert_matches = "1.5.0"
 
 [profile.release]
