@@ -22,7 +22,7 @@ pub struct IptablesFirewallBackend {
 
 impl IptablesFirewallBackend {
     pub fn new(chain_name: String) -> anyhow::Result<Self> {
-        log::info!("Using iptables backend, chain \"{}\"", chain_name);
+        log::info!("Using iptables backend, chain \"{chain_name}\"");
 
         // Note: Default set timeout does not matter, we specify timeout for each entry individually
 
@@ -213,11 +213,11 @@ impl IptablesFirewallBackend {
                 }
             }
             Err(e) => {
-                log::error!("Failed to start {}: {}", program, e);
+                log::error!("Failed to start {program}: {e}");
             }
         }
 
-        bail!("Failed to run {}", program);
+        bail!("Failed to run {program}");
     }
 }
 
