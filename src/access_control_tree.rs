@@ -61,7 +61,7 @@ pub struct SocketAddress {
 }
 
 impl AccessControlTree {
-    pub fn matcher(&self, client_ip_address: IpAddr) -> SubnetMatcher {
+    pub fn matcher(&self, client_ip_address: IpAddr) -> SubnetMatcher<'_> {
         SubnetMatcher::new(self, client_ip_address)
     }
 
